@@ -31,7 +31,7 @@ class UsersTableSeeder extends Seeder
         DB::table('users')->insert([
             'name' => 'admin',
             'email' => 'admin@lbm.in',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('Admin@123'),
             'referral_id' => 'JJOF1714714247',
             'state_id' => User::STATE_ACTIVE,
             'role_id' => User::ROLE_ADMIN,

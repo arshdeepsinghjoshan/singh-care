@@ -47,7 +47,7 @@ $segment2 = request()->segment(2);
         </li>
         <!--End User Managment -->
 
-      
+
 
         @if (User::isAdmin())
         <!--Wallet Managment -->
@@ -100,18 +100,6 @@ $segment2 = request()->segment(2);
 
 
 
-        <!-- Subscription Managment -->
-
-  <!-- Kyc Managment -->
-  <li class="menu-header small text-uppercase"><span class="menu-header-text">KYC Management</span></li>
-        <li class="menu-item {{ $segment1 == 'kyc' ? 'active' : '' }}">
-            <a href="{{ url('kyc') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-collection"></i>
-                <div data-i18n="Basic">KYC</div>
-            </a>
-        </li>
-        <!--End Kyc Managment -->
-        <!--End Subscription Managment -->
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Support</span></li>
         @if (User::isAdmin())
         <!-- Support Managment -->
