@@ -1,29 +1,39 @@
-
-<form action="{{ route('support.add') }}" method="post" id="support-update" enctype="multipart/form-data">
+<form action="{{ route('product.add') }}" method="post" id="product-update" enctype="multipart/form-data">
     @csrf
     <div class="row align-items-starts">
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
             <div class="mb-3 required">
-                <label class="pt-2 fw-bold" for="btncheck1"> Subject </label>
-                <input type="text" class="form-control d-block" name="title" value="{{ old('title', $model->title) }}">
+                <label class="pt-2 fw-bold" for="btncheck1"> Name </label>
+                <input type="text" class="form-control d-block" name="name" value="{{ old('name', $model->name) }}">
             </div>
             @error("Title")
-            <p style="color:red;">{{ $errors->first("title")}}</p>
+            <p style="color:red;">{{ $errors->first("name")}}</p>
             @enderror
         </div>
 
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
             <div class="mb-3 required">
                 <label class="pt-2 fw-bold" for="btncheck1"> Category </label>
-                <select name="department_id" class="validate form-control" id="department_id">
-                    @foreach($model->getDepartmentOption() as $department)
-                    <option value="{{$department->id}}" {{$department->id == $model->department_id ? 'selected' : ''}}>{{$department->title}}</option>
+                <select name="category_id" class="validate form-control" id="category_id">
+                    @foreach($model->getCategoryOption() as $category)
+                    <option value="{{$category->id}}" {{$category->id == $model->category_id ? 'selected' : ''}}>{{$category->name}}</option>
                     @endforeach
 
                 </select>
             </div>
-            @error("department_id")
-            <p style="color:red;">{{ $errors->first("department_id")}}</p>
+            @error("category_id")
+            <p style="color:red;">{{ $errors->first("category_id")}}</p>
+            @enderror
+        </div>
+
+
+        <div class="col-xl-4 col-lg-4 col-md-6 col-12">
+            <div class="mb-3 required">
+                <label class="pt-2 fw-bold" for="btncheck1"> Description </label>
+                <input type="text" class="form-control d-block" name="description" value="{{ old('description', $model->description) }}">
+            </div>
+            @error("Title")
+            <p style="color:red;">{{ $errors->first("description")}}</p>
             @enderror
         </div>
         <input type="hidden" name="id" id="id" value="{{ $model->id }}" required />
@@ -75,4 +85,3 @@
         </div>
     </div>
 </form>
-

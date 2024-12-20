@@ -6,8 +6,8 @@
             'label' => 'Home',
         ],
         [
-            'url' => 'support',
-            'label' => 'Support',
+            'url' => 'product',
+            'label' => 'Product',
         ],
     ]" />
 
@@ -25,7 +25,7 @@
                         </h3>
                     </div>
                     <div class="card-body">
-                    @include('support.support._form')
+                    @include('product.product._form')
                     </div>
                 </div>
             </div>

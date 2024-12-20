@@ -10,8 +10,8 @@ use App\Models\User;
             'label' => 'Home',
         ],
         [
-            'url' => 'support',
-            'label' => 'Support',
+             'url' => 'product',
+            'label' => 'Product',
         ],
         !empty($model->title) ? (strlen($model->title) > 100 ? substr($model->title, 0, 100) . '...' : $model->title) : 'N/A'
     ]" />

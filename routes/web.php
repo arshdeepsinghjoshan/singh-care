@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductCategoryController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SubscribedPlanController;
 use App\Http\Controllers\SubscriptionPlanController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\SupportDepartmentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WalletTransactionController;
+use App\Models\ProductCategory;
 use App\Models\SubscriptionPlan;
 use Illuminate\Support\Facades\Route;
 
@@ -126,6 +128,15 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::post('product/category/update/{id}', [ProductCategoryController::class, 'update'])->name('productCategory.update');
         Route::get('/product/category/stateChange/{id}/{state_id}', [ProductCategoryController::class, 'stateChange']);
         Route::get('/product/category/delete/{id}', [ProductCategoryController::class, 'finalDelete']);
+
+
+        Route::get('product', [ProductController::class, 'index']);
+        Route::get('product/create', [ProductController::class, 'create']);
+        Route::post('product/add', [ProductController::class, 'add'])->name('product.add');
+        Route::get('/product/get-list', [ProductController::class, 'getList']);
+        Route::get('/product/edit/{id}', [ProductController::class, 'edit']);
+        Route::get('/product/view/{id}', [ProductController::class, 'view']);
+        Route::post('product/update', [ProductController::class, 'update'])->name('product.update');
 
 
     });

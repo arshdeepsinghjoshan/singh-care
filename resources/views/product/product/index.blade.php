@@ -11,8 +11,8 @@
             'label' => 'Home',
         ],
         [
-            'url' => 'support',
-            'label' => 'Support',
+            'url' => 'product',
+            'label' => 'Product',
         ],
     ]" />
 
@@ -24,7 +24,7 @@
                     <div class="card-body">
                         <x-a-update-menu-items :model="$model" :action="'index'" />
                         <div class="table-responsive">
-                            <x-a-grid-view :id="'support_table'" :model="$model" :url="'support/get-list/'" :columns="[
+                            <x-a-grid-view :id="'product_table'" :model="$model" :url="'product/get-list/'" :columns="[
                                 'id',
                                  'title',
                                 'department_id',
