@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SubscribedPlanController;
 use App\Http\Controllers\SubscriptionPlanController;
@@ -113,5 +114,19 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::post('support/department/update/{id}', [SupportDepartmentController::class, 'update'])->name('supportDepartment.update');
         Route::get('/support/department/stateChange/{id}/{state_id}', [SupportDepartmentController::class, 'stateChange']);
         Route::get('/support/department/delete/{id}', [SupportDepartmentController::class, 'finalDelete']);
+
+
+
+
+        Route::get('product/category', [ProductCategoryController::class, 'index']);
+        Route::post('product/category/add', [ProductCategoryController::class, 'store'])->name('productCategory.add');
+        Route::get('/product/category/get-list', [ProductCategoryController::class, 'getDepartmenttList']);
+        Route::get('/product/category/edit/{id}', [ProductCategoryController::class, 'edit']);
+        Route::get('/product/category/view/{id}', [ProductCategoryController::class, 'view']);
+        Route::post('product/category/update/{id}', [ProductCategoryController::class, 'update'])->name('productCategory.update');
+        Route::get('/product/category/stateChange/{id}/{state_id}', [ProductCategoryController::class, 'stateChange']);
+        Route::get('/product/category/delete/{id}', [ProductCategoryController::class, 'finalDelete']);
+
+
     });
 });
