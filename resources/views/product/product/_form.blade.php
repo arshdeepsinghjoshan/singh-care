@@ -38,13 +38,32 @@
         <input type="hidden" name="id" id="id" value="{{ $model->id }}" required />
 
 
-        <div class="col-xl-8 col-lg-8 col-md-6 col-8">
-            <div class="mb-6 required">
-                <label for="message">Description</label>
-                <textarea rows="5" name="description" id="description" class="validate form-control">{{$model->description}} </textarea>
+        <div class="col-xl-4 col-lg-4 col-md-6 col-12">
+            <div class="mb-3 required">
+            <label class="pt-2 fw-bold" for="btncheck1">Description</label>
+                <textarea rows="1" name="description" id="description" class="validate form-control">{{$model->description}} </textarea>
             </div>
             @error("description")
             <p style="color:red;">{{ $errors->first("description")}}</p>
+            @enderror
+        </div>
+        <div class="col-xl-4 col-lg-4 col-md-6 col-12">
+            <div class="mb-3 required">
+                <label class="pt-2 fw-bold" for="btncheck1"> HSN Code </label>
+                <input type="text" class="form-control d-block" name="hsn_code" value="{{ old('hsn_code', $model->hsn_code) }}">
+            </div>
+            @error("hsn_code")
+            <p style="color:red;">{{ $errors->first("hsn_code")}}</p>
+            @enderror
+        </div>
+
+        <div class="col-xl-4 col-lg-4 col-md-6 col-12">
+            <div class="mb-3 required">
+                <label class="pt-2 fw-bold" for="btncheck1"> Salt </label>
+                <input type="text" class="form-control d-block" name="salt" value="{{ old('salt', $model->salt) }}">
+            </div>
+            @error("salt")
+            <p style="color:red;">{{ $errors->first("salt")}}</p>
             @enderror
         </div>
 

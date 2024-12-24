@@ -19,14 +19,78 @@ class ProductController extends Controller
     public function index()
     {
         try {
-         
             $model = new Product();
             return view('product.product.index', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
+    public function import(Request $request)
+    {
+        try {
+            if ($request->isMethod('post')) {
+                // Validate the file input
+                $request->validate([
+                    'file' => 'required|mimes:xlsx,xls,csv|max:2048', // Ensure it's an Excel or CSV file
+                ]);
 
+                // Handle file upload
+                $file = $request->file('file');
+                $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getPathname());
+                $sheet = $spreadsheet->getActiveSheet();
+                $data = $sheet->toArray();
+
+                // Validate headers
+                $requiredColumns = ['name', 'product_code', 'hsn_code', 'price', 'distribution_price', 'bv'];
+                $headers = $data[0]; // First row as headers
+                $missingColumns = array_diff($requiredColumns, $headers);
+
+                if (!empty($missingColumns)) {
+                    return redirect()->back()->with('error', 'Missing columns: ' . implode(', ', $missingColumns));
+                }
+
+                // Process rows
+                $rows = array_slice($data, 1); // Skip header row
+                $productsToInsert = [];
+
+                foreach ($rows as $row) {
+                    $productData = array_combine($headers, $row); // Map headers to row values
+
+                    // Validate required fields in rows
+                    if (
+                        empty($productData['name']) || empty($productData['product_code']) ||
+                        empty($productData['hsn_code']) || empty($productData['price']) ||
+                        empty($productData['distribution_price']) || empty($productData['bv'])
+                    ) {
+                        return redirect()->back()->with('error', 'Missing required fields in one or more rows.');
+                    }
+                    $now = now();
+                    $productsToInsert[] = [
+                        'name' => $productData['name'],
+                        'product_code' => $productData['product_code'] ?? '',
+                        'hsn_code' => $productData['hsn_code'],
+                        'description' => $productData['description'] ?? '', // Default empty string
+                        'price' => (float) $productData['price'],
+                        'category_id' => $productData['category_id'] ?? null,
+                        'created_by_id' => Auth::id() ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+
+                // Insert into database
+                Product::insert($productsToInsert);
+
+                return redirect()->back()->with('success', 'File imported successfully! Products added: ' . count($productsToInsert));
+            }
+
+            // For GET request
+            $model = new Product();
+            return view('product.product.import', compact('model'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
 
 
     public function edit(Request $request)
@@ -35,7 +99,7 @@ class ProductController extends Controller
             $id = $request->id;
             $model  = Product::find($id);
             if ($model) {
-               
+
                 return view('product.product.update', compact('model'));
             } else {
                 return redirect()->back()->with('error', 'Product not found');
@@ -53,7 +117,7 @@ class ProductController extends Controller
 
             $model  = new Product();
             if ($model) {
-               
+
                 return view('product.product.add', compact('model'));
             } else {
                 return redirect('404');
@@ -68,7 +132,7 @@ class ProductController extends Controller
             $id = $request->id;
             $model  = Product::find($id);
             if ($model) {
-            
+
                 return view('product.product.view', compact('model'));
             } else {
                 return redirect()->back()->with('error', 'Product not found');
@@ -120,7 +184,7 @@ class ProductController extends Controller
     public $s_no = 1;
 
 
-    
+
 
 
     public function getList(Request $request, $id = null)
@@ -156,7 +220,7 @@ class ProductController extends Controller
             ->addColumn('priority_id', function ($data) {
                 return $data->getPriority();
             })
-           
+
             ->addColumn('department_id', function ($data) {
                 return $data->getDepartment ?  $data->getDepartment->title : 'N/A';
             })
@@ -186,20 +250,20 @@ class ProductController extends Controller
                     $query->where(function ($q) use ($searchTerms) {
                         foreach ($searchTerms as $term) {
                             $q->where('id', 'like', "%$term%")
-                            ->orWhere('title', 'like', "%$term%")
-                            ->orWhere('created_at', 'like', "%$term%")
-                            ->orWhereHas('getDepartment', function ($query) use ($term) {
-                                $query->where('title', 'like', "%$term%");
-                            })
-                            ->orWhere(function ($query) use ($term) {
-                                $query->searchState($term);
-                            })
-                            ->orWhere(function ($query) use ($term) {
-                                $query->searchPriority($term);
-                            })
-                            ->orWhereHas('createdBy', function ($query) use ($term) {
-                                $query->where('name', 'like', "%$term%");
-                            });
+                                ->orWhere('title', 'like', "%$term%")
+                                ->orWhere('created_at', 'like', "%$term%")
+                                ->orWhereHas('getDepartment', function ($query) use ($term) {
+                                    $query->where('title', 'like', "%$term%");
+                                })
+                                ->orWhere(function ($query) use ($term) {
+                                    $query->searchState($term);
+                                })
+                                ->orWhere(function ($query) use ($term) {
+                                    $query->searchPriority($term);
+                                })
+                                ->orWhereHas('createdBy', function ($query) use ($term) {
+                                    $query->where('name', 'like', "%$term%");
+                                });
                         }
                     });
                 }

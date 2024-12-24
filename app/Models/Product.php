@@ -141,6 +141,13 @@ class Product extends Model
                     'url' => url('product/create'),
                     'visible' => User::isAdmin()
                 ];
+                $menu['import'] = [
+                    'label' => 'fas fa-file-import',
+                    'color' => 'btn btn-success',
+                    'title' => __('File Import'),
+                    'url' => url('product/import'),
+                    'visible' => false
+                ];
         }
         return $menu;
     }

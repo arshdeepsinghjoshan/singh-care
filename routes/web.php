@@ -132,6 +132,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         Route::get('product', [ProductController::class, 'index']);
         Route::get('product/create', [ProductController::class, 'create']);
+        Route::post('product/import', [ProductController::class, 'import'])->name('product.import');
         Route::post('product/add', [ProductController::class, 'add'])->name('product.add');
         Route::get('/product/get-list', [ProductController::class, 'getList']);
         Route::get('/product/edit/{id}', [ProductController::class, 'edit']);

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('slug', 128)->nullable();
             $table->string('product_code', 128)->nullable();
             $table->string('hsn_code', 128)->nullable();
+            $table->string('batch_no', 128)->nullable();
+            $table->string('batch_no', 128)->nullable();
             $table->text('description')->nullable();
             $table->decimal('price', 20, 6)->unsigned()->default(0);
             $table->decimal('distribution_price', 20, 6)->unsigned()->default(0);
