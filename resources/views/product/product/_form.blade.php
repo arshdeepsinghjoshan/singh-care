@@ -25,41 +25,26 @@
             <p style="color:red;">{{ $errors->first("category_id")}}</p>
             @enderror
         </div>
-
-
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
             <div class="mb-3 required">
-                <label class="pt-2 fw-bold" for="btncheck1"> Description </label>
-                <input type="text" class="form-control d-block" name="description" value="{{ old('description', $model->description) }}">
+                <label class="pt-2 fw-bold" for="btncheck1"> Price </label>
+                <input type="text" class="form-control d-block" name="price" value="{{ old('price', $model->price) }}">
             </div>
-            @error("Title")
-            <p style="color:red;">{{ $errors->first("description")}}</p>
+            @error("price")
+            <p style="color:red;">{{ $errors->first("price")}}</p>
             @enderror
         </div>
+
         <input type="hidden" name="id" id="id" value="{{ $model->id }}" required />
-        <div class="col-xl-4 col-lg-4 col-md-6 col-12">
-            <div class="mb-3 required">
-                <label class="pt-2 fw-bold" for="btncheck1"> Priority </label>
-                <select name="priority_id" class="validate form-control" id="priority_id">
-                    @if($model->getPriorityOptions())
-                    @foreach($model->getPriorityOptions() as $key => $priority)
-                    <option value="{{$key}}" {{ $key == $model->priority_id ? 'selected' : ''}}>{{$priority}}</option>
-                    @endforeach
-                    @endif
-                </select>
-            </div>
-            @error("priority_id")
-            <p style="color:red;">{{ $errors->first("priority_id")}}</p>
-            @enderror
-        </div>
+
 
         <div class="col-xl-8 col-lg-8 col-md-6 col-8">
             <div class="mb-6 required">
-                <label for="message">Message</label>
-                <textarea rows="5" name="message" id="message" class="validate form-control">{{$model->message}} </textarea>
+                <label for="message">Description</label>
+                <textarea rows="5" name="description" id="description" class="validate form-control">{{$model->description}} </textarea>
             </div>
-            @error("message")
-            <p style="color:red;">{{ $errors->first("message")}}</p>
+            @error("description")
+            <p style="color:red;">{{ $errors->first("description")}}</p>
             @enderror
         </div>
 
