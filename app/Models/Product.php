@@ -19,17 +19,8 @@ class Product extends Model
 
     use AActiveRecord;
 
-    protected $fillable = [
-        'title',
-        'category_id',
-        'type_id',
-        'state_id',
-        'created_by_id',
-        'priority_id',
-        'message',
-        'image',
+    protected $guarded = ['id'];
 
-    ];
 
     public static function getStateOptions()
     {

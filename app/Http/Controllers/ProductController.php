@@ -59,7 +59,7 @@ class ProductController extends Controller
                     // Validate required fields in rows
                     if (
                         empty($productData['name']) || empty($productData['product_code']) ||
-                        empty($productData['hsn_code']) || empty($productData['price']) 
+                        empty($productData['hsn_code']) || empty($productData['price'])
                     ) {
                         return redirect()->back()->with('error', 'Missing required fields in one or more rows.');
                     }
@@ -140,10 +140,10 @@ class ProductController extends Controller
 
                 return view('product.product.view', compact('model'));
             } else {
-                return redirect()->back()->with('error', 'Product not found');
+                return redirect('/product')->with('error', 'Product not found');
             }
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+            return redirect('/product')->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 
@@ -212,7 +212,9 @@ class ProductController extends Controller
             ->addColumn('title', function ($data) {
                 return !empty($data->title) ? (strlen($data->title) > 60 ? substr(ucfirst($data->title), 0, 60) . '...' : ucfirst($data->title)) : 'N/A';
             })
-
+            ->addColumn('price', function ($data) {
+                return number_format($data->price, 2);
+            })
             ->addColumn('status', function ($data) {
                 return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
             })
@@ -260,11 +262,20 @@ class ProductController extends Controller
                     $query->where(function ($q) use ($searchTerms) {
                         foreach ($searchTerms as $term) {
                             $q->where('id', 'like', "%$term%")
-                                ->orWhere('title', 'like', "%$term%")
+                                ->orWhere('name', 'like', "%$term%")
+                                ->orWhere('description', 'like', "%$term%")
+                                ->orWhere('price', 'like', "%$term%")
+                                ->orWhere('hsn_code', 'like', "%$term%")
+                                ->orWhere('batch_no', 'like', "%$term%")
+                                ->orWhere('agency_name', 'like', "%$term%")
+                                ->orWhere('bill_date', 'like', "%$term%")
+                                ->orWhere('product_code', 'like', "%$term%")
+                                ->orWhere('expiry_date', 'like', "%$term%")
+                                ->orWhere('salt', 'like', "%$term%")
                                 ->orWhere('created_at', 'like', "%$term%")
-                                ->orWhereHas('getDepartment', function ($query) use ($term) {
-                                    $query->where('title', 'like', "%$term%");
-                                })
+                                // ->orWhereHas('getDepartment', function ($query) use ($term) {
+                                //     $query->where('title', 'like', "%$term%");
+                                // })
                                 ->orWhere(function ($query) use ($term) {
                                     $query->searchState($term);
                                 })
@@ -296,10 +307,10 @@ class ProductController extends Controller
         return Validator::make(
             $data,
             [
-                'title' => 'required|string|max:255',
-                'priority_id' => 'required',
-                'department_id' => 'required|exists:support_departments,id',
-                'message' => 'required|string|max:255'
+                'name' => 'required|string|max:255',
+                'price' => 'required',
+                'hsn_code' => 'required',
+                'batch_no' => 'required|string|max:255'
             ],
             [
                 'title.required' => 'The subject field is required.',
@@ -313,38 +324,47 @@ class ProductController extends Controller
     }
 
     public function add(Request $request)
-    {
-        try {
-            if ($this->validator($request->all())->fails()) {
-                $message = $this->validator($request->all())->messages()->first();
-                return redirect()->back()->withInput()->with('error', $message);
-            }
-            $all_images = [];
-            $ticket_images = $request->file('images');
-            if ($request->hasFile('images')) {
-                foreach ($ticket_images as $image) {
-                    if ($image->isValid()) {
-                        $imageName = rand(1, 100000) . time() . '_' . $image->getClientOriginalName();
-                        $image->move(public_path('support_module/ticket_images'), $imageName);
-                        $all_images[] =  $imageName;
-                    }
+{
+    try {
+        // Validation
+        if ($this->validator($request->all())->fails()) {
+            $message = $this->validator($request->all())->messages()->first();
+            return redirect()->back()->withInput()->with('error', $message);
+        }
+
+        // Initialize the images array
+        $all_images = [];
+        $ticket_images = $request->file('images');
+
+        // Check if images were uploaded
+        if ($request->hasFile('images')) {
+            foreach ($ticket_images as $image) {
+                if ($image->isValid()) {
+                    $imageName = rand(1, 100000) . time() . '_' . $image->getClientOriginalName();
+                    $image->move(public_path('products'), $imageName);
+                    $all_images[] = $imageName;
                 }
             }
-            $model = new Product();
-            $model->state_id = Product::STATE_PENDING;
-            $model->image = !empty($all_images) ? json_encode($all_images) : null;
-            $model->created_by_id = Auth::user()->id;
-            $model->fill($request->all());
-            if ($model->save()) {
-                return redirect('/support')->with('success', 'Product created successfully!');
-            } else {
-                return redirect('/support/create')->with('error', 'Unable to save the Product!');
-            }
-        } catch (\Exception $e) {
-            $bug = $e->getMessage();
-            return redirect('/support/create')->with('error', $bug);
         }
+
+        // Create a new product model
+        $model = new Product();
+        $model->fill($request->all());
+        $model->state_id = Product::STATE_ACTIVE;
+        $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
+        $model->created_by_id = Auth::user()->id;
+
+        // Save the model
+        if ($model->save()) {
+            return redirect('/product')->with('success', 'Product created successfully!');
+        } else {
+            return redirect('/product/create')->with('error', 'Unable to save the Product!');
+        }
+    } catch (\Exception $e) {
+        $bug = $e->getMessage();
+        return redirect()->back()->withInput()->with('error', $bug);
     }
+}
 
 
 

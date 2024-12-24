@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('state_id')->default(1);
             $table->integer('type_id')->nullable(); // 1 = Package
             $table->string('image')->nullable();
-            $table->string('images')->nullable();
+            $table->text('images')->nullable();
             $table->string('salt')->nullable();
             $table->integer('category_id')->nullable();
             $table->integer('tax_id')->nullable();
