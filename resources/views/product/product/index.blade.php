@@ -53,11 +53,13 @@
                         <x-a-grid-view :id="'product_table'" :model="$model" :url="'product/get-list/'" :columns="[
                                 'id',
                                  'name',
+                                 'price',
                                 'description',
                                 'hsn_code',
-                                'product_code',
+                                'batch_no',
+                                'agency_name',
+                                'bill_date',
                                 'created_at',
-                                'created_by',
                                 'action',
                             ]" />
                     </div>

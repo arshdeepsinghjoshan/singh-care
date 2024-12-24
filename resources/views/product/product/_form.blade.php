@@ -122,24 +122,11 @@
             <p style="color:red;">{{ $errors->first("batch_no")}}</p>
             @enderror
         </div>
-
-        <div class="col-xl-4 col-lg-4 col-md-6 col-4">
-            <div class="mb-6">
-                <label for="message">Images</label>
-                <div class="input-group">
-                    <input type="file" class="form-control ticket_images" name="images[]" multiple onchange="previewImages(event)">
-                </div>
-            </div>
-            @error("image")
-            <p style="color:red;">{{ $errors->first("image")}}</p>
-            @enderror
-        </div>
         <div class="preview-images"></div>
         <div class="col-lg-12">
             <div class="d-flex align-items-center justify-content-end">
                 <div class="downoad-btns text-end my-4">
                     <button class="btn btn-primary text-white ms-2">@empty($model->exists) {{ __('Add') }} @else {{ __('Update') }} @endempty</button>
-
                 </div>
             </div>
         </div>
