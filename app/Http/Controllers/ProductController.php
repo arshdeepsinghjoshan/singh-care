@@ -227,7 +227,7 @@ class ProductController extends Controller
             ->addColumn('action', function ($data) {
                 $html = '<div class="table-actions text-center">';
                 // $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('support/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
-                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('support/view/' . $data->id) . '"  ><i class="fa fa-eye
+                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('product/view/' . $data->id) . '"  ><i class="fa fa-eye
                     "data-toggle="tooltip"  title="View"></i></a>';
                 $html .=  '</div>';
                 return $html;

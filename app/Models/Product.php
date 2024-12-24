@@ -10,15 +10,11 @@ class Product extends Model
 {
     use HasFactory;
 
-    const STATE_PENDING = 0;
+    const STATE_INACTIVE = 0;
 
-    const STATE_INPROGRESS = 1;
+    const STATE_ACTIVE = 1;
 
-    const STATE_REJECTED = 4;
-
-    const STATE_HOLD = 2;
-
-    const STATE_COMPLETE = 3;
+    const STATE_DELETE = 2;
 
 
     use AActiveRecord;
@@ -38,20 +34,18 @@ class Product extends Model
     public static function getStateOptions()
     {
         return [
-            self::STATE_PENDING => "New",
-            self::STATE_INPROGRESS => "Inprogress",
-            self::STATE_HOLD => "Hold",
-            self::STATE_COMPLETE => "Complete",
+            self::STATE_INACTIVE => "Inactive",
+            self::STATE_ACTIVE => "Active",
+            self::STATE_DELETE => "Delete",
         ];
     }
 
     public static function getStateOptionsBadge($stateValue)
     {
         $list = [
-            self::STATE_PENDING => "btn btn-primary",
-            self::STATE_COMPLETE => "btn btn-primary",
-            self::STATE_HOLD => "btn btn-danger",
-            self::STATE_INPROGRESS => "btn btn-primary",
+            self::STATE_ACTIVE => "success",
+            self::STATE_INACTIVE => "secondary",
+            self::STATE_DELETE => "danger",
 
         ];
         return isset($stateValue) ? $list[$stateValue] : 'Not Defined';
@@ -59,10 +53,9 @@ class Product extends Model
     public function getStateButtonOption($state_id = null)
     {
         $list = [
-            self::STATE_COMPLETE => "success",
-            self::STATE_PENDING => "secondary",
-            self::STATE_HOLD => "danger",
-            self::STATE_INPROGRESS => "secondary",
+            self::STATE_ACTIVE => "success",
+            self::STATE_INACTIVE => "secondary",
+            self::STATE_DELETE => "danger",
 
         ];
         return isset($list[$state_id]) ? 'btn btn-' . $list[$state_id] : 'Not Defined';
@@ -75,10 +68,9 @@ class Product extends Model
     public function getStateBadgeOption()
     {
         $list = [
-            self::STATE_PENDING => "secondary",
-            self::STATE_INPROGRESS => "secondary",
-            self::STATE_HOLD => "warning",
-            self::STATE_COMPLETE => "success",
+            self::STATE_ACTIVE => "success",
+            self::STATE_INACTIVE => "secondary",
+            self::STATE_DELETE => "danger",
         ];
         return isset($list[$this->state_id]) ? 'badge bg-' . $list[$this->state_id] : 'Not Defined';
     }
