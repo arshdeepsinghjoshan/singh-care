@@ -70,7 +70,7 @@ use App\Models\User;
     " />
                 </div>
             </div>
-            @if(count(json_decode($model->images)) > 0)
+            @if($model->images && count(json_decode($model->images)) > 0)
             <div class="col-lg-12 mt-5">
                 <div class="card">
                     <div class="card-header">
