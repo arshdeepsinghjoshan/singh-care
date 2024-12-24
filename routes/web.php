@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SiteController;
@@ -138,6 +139,17 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/product/edit/{id}', [ProductController::class, 'edit']);
         Route::get('/product/view/{id}', [ProductController::class, 'view']);
         Route::post('product/update', [ProductController::class, 'update'])->name('product.update');
+
+
+
+        Route::get('order', [OrderController::class, 'index']);
+        Route::get('order/create', [OrderController::class, 'create']);
+        Route::post('order/import', [OrderController::class, 'import'])->name('order.import');
+        Route::post('order/add', [OrderController::class, 'add'])->name('order.add');
+        Route::get('/order/get-list', [OrderController::class, 'getList']);
+        Route::get('/order/edit/{id}', [OrderController::class, 'edit']);
+        Route::get('/order/view/{id}', [OrderController::class, 'view']);
+        Route::post('order/update', [OrderController::class, 'update'])->name('order.update');
 
 
     });

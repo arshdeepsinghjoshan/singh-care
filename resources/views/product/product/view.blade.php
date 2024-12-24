@@ -63,8 +63,7 @@ use App\Models\User;
         'attribute' => 'created_by_id',
         'label' => 'Created By',
         'value' => !empty($model->createdBy && $model->createdBy->name) ? $model->createdBy->name : 'N/A',
-     ],
-     'message'
+     ]
     
     ]
     " />
