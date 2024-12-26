@@ -4,13 +4,14 @@
 @section('content')
 
 
+<!-- preg_replace('/([a-z])([A-Z])/', '$1 $2', class_basename($model)) -->
 
 <x-a-breadcrumb :columns="[
         [
             'url' => '/',
             'label' => 'Home',
         ],
-      'Product Category'
+
     ]" />
 
 

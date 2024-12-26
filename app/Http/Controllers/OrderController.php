@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Department;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
@@ -19,8 +20,8 @@ class OrderController extends Controller
     public function index()
     {
         try {
-            $model = new Product();
-            return view('product.product.index', compact('model'));
+            $model = new Order();
+            return view('order.index', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
@@ -91,7 +92,7 @@ class OrderController extends Controller
 
             // For GET request
             $model = new Product();
-            return view('product.product.import', compact('model'));
+            return view('order.import', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
@@ -105,7 +106,7 @@ class OrderController extends Controller
             $model  = Product::find($id);
             if ($model) {
 
-                return view('product.product.update', compact('model'));
+                return view('order.update', compact('model'));
             } else {
                 return redirect()->back()->with('error', 'Product not found');
             }
@@ -123,7 +124,7 @@ class OrderController extends Controller
             $model  = new Product();
             if ($model) {
 
-                return view('product.product.add', compact('model'));
+                return view('order.add', compact('model'));
             } else {
                 return redirect('404');
             }
@@ -138,7 +139,7 @@ class OrderController extends Controller
             $model  = Product::find($id);
             if ($model) {
 
-                return view('product.product.view', compact('model'));
+                return view('order.view', compact('model'));
             } else {
                 return redirect('/product')->with('error', 'Product not found');
             }

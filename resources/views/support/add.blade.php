@@ -25,7 +25,7 @@
                         </h3>
                     </div>
                     <div class="card-body">
-                    @include('support.support._form')
+                    @include('support._form')
                     </div>
                 </div>
             </div>

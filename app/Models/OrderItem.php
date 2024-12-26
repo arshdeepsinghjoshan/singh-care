@@ -11,17 +11,10 @@ class Product extends Model
     use HasFactory;
 
     const STATE_INACTIVE = 0;
-
     const STATE_ACTIVE = 1;
-
     const STATE_DELETE = 2;
-
-
     use AActiveRecord;
-
     protected $guarded = ['id'];
-
-
     public static function getStateOptions()
     {
         return [

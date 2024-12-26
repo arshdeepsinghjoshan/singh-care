@@ -20,7 +20,7 @@ class ProductController extends Controller
     {
         try {
             $model = new Product();
-            return view('product.product.index', compact('model'));
+            return view('product.index', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
@@ -91,7 +91,7 @@ class ProductController extends Controller
 
             // For GET request
             $model = new Product();
-            return view('product.product.import', compact('model'));
+            return view('product.import', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
@@ -105,7 +105,7 @@ class ProductController extends Controller
             $model  = Product::find($id);
             if ($model) {
 
-                return view('product.product.update', compact('model'));
+                return view('product.update', compact('model'));
             } else {
                 return redirect()->back()->with('error', 'Product not found');
             }
@@ -123,7 +123,7 @@ class ProductController extends Controller
             $model  = new Product();
             if ($model) {
 
-                return view('product.product.add', compact('model'));
+                return view('product.add', compact('model'));
             } else {
                 return redirect('404');
             }
@@ -138,7 +138,7 @@ class ProductController extends Controller
             $model  = Product::find($id);
             if ($model) {
 
-                return view('product.product.view', compact('model'));
+                return view('product.view', compact('model'));
             } else {
                 return redirect('/product')->with('error', 'Product not found');
             }
