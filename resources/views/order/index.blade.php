@@ -23,9 +23,12 @@
                 <div class="card-body">
                     <x-a-update-menu-items :model="$model" :action="'index'" />
                     <div class="table-responsive">
-                        <x-a-grid-view :id="'product_category_table'" :model="$model" :url="'product/category/get-list/'" :columns="[
+                        <x-a-grid-view :id="'order_table'" :model="$model" :url="'order/get-list/'" :columns="[
                                 'id',
-                                'name',
+                                'order_number',
+                                'total_amount',
+                                'order_payment_status',
+                                'payment_method',
                                 'status',
                                 'created_at',
                                 'created_by',

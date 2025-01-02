@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductCategoryController;
@@ -151,6 +152,17 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/order/view/{id}', [OrderController::class, 'view']);
         Route::post('order/update', [OrderController::class, 'update'])->name('order.update');
 
+
+
+        Route::get('cart', [CartController::class, 'index']);
+        Route::get('cart/create', [CartController::class, 'create']);
+        Route::post('cart/import', [CartController::class, 'import'])->name('cart.import');
+        Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
+        Route::post('cart/change-quantity', [CartController::class, 'changeQuantity'])->name('cart.change_quantity');
+        Route::get('/cart/get-list', [CartController::class, 'getList']);
+        Route::get('/cart/edit/{id}', [CartController::class, 'edit']);
+        Route::get('/cart/view/{id}', [CartController::class, 'view']);
+        Route::post('cart/update', [CartController::class, 'update'])->name('cart.update');
 
     });
 });

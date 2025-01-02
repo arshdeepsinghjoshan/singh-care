@@ -121,9 +121,8 @@ class OrderController extends Controller
     {
         try {
 
-            $model  = new Product();
+            $model  = new Order();
             if ($model) {
-
                 return view('order.add', compact('model'));
             } else {
                 return redirect('404');
@@ -196,9 +195,9 @@ class OrderController extends Controller
     public function getList(Request $request, $id = null)
     {
         if (User::isUser()) {
-            $query = Product::my()->orderBy('id', 'desc');
+            $query = Order::my()->orderBy('id', 'desc');
         } else {
-            $query = Product::orderBy('id', 'desc');
+            $query = Order::orderBy('id', 'desc');
         }
 
         if (!empty($id))

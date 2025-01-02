@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use Illuminate\Http\Request;
 use App\Models\Department;
 use App\Models\Product;
@@ -12,17 +13,50 @@ use Illuminate\Support\Str;
 use DataTables;
 use Illuminate\Validation\Rule;
 
-class ProductController extends Controller
+class CartController extends Controller
 {
     public $setFilteredRecords = 0;
 
     public function index()
     {
         try {
-            $model = new Product();
+            $model = new Cart();
             return view('product.index', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
+    protected static function changeQuantityValidator(array $data, $id = null)
+    {
+        return Validator::make(
+            $data,
+            [
+                'name' => 'required|string|max:255',
+                'price' => 'required',
+                'hsn_code' => 'required',
+                'batch_no' => 'required|string|max:255'
+            ],
+            [
+                'title.required' => 'The subject field is required.',
+                'title.max' => 'The subject field must not exceed 255 characters.',
+                'department_id.required' => 'The department field is required.',
+                'priority_id.required' => 'The priority field is required.',
+                'message.required' => 'The message field is required.',
+                'message.max' => 'The message field must not exceed 255 characters.'
+            ]
+        );
+    }
+
+    public function changeQuantity(Request $request)
+    {
+        if ($this->changeQuantityValidator($request->all())->fails()) {
+            $message = $this->validator($request->all())->messages()->first();
+            // return redirect()->back()->withInput()->with('error', $message);
+            return response()->json([
+                'status' => 422,
+                'message' => $message,
+            ]);
         }
     }
     public function import(Request $request)
@@ -84,13 +118,13 @@ class ProductController extends Controller
                 }
 
                 // Insert into database
-                Product::insert($productsToInsert);
+                Cart::insert($productsToInsert);
 
-                return redirect()->back()->with('success', 'File imported successfully! Products added: ' . count($productsToInsert));
+                return redirect()->back()->with('success', 'File imported successfully! Carts added: ' . count($productsToInsert));
             }
 
             // For GET request
-            $model = new Product();
+            $model = new Cart();
             return view('product.import', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
@@ -102,12 +136,12 @@ class ProductController extends Controller
     {
         try {
             $id = $request->id;
-            $model  = Product::find($id);
+            $model  = Cart::find($id);
             if ($model) {
 
                 return view('product.update', compact('model'));
             } else {
-                return redirect()->back()->with('error', 'Product not found');
+                return redirect()->back()->with('error', 'Cart not found');
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
@@ -120,7 +154,7 @@ class ProductController extends Controller
     {
         try {
 
-            $model  = new Product();
+            $model  = new Cart();
             if ($model) {
 
                 return view('product.add', compact('model'));
@@ -135,12 +169,12 @@ class ProductController extends Controller
     {
         try {
             $id = $request->id;
-            $model  = Product::find($id);
+            $model  = Cart::find($id);
             if ($model) {
 
                 return view('product.view', compact('model'));
             } else {
-                return redirect('/product')->with('error', 'Product not found');
+                return redirect('/product')->with('error', 'Cart not found');
             }
         } catch (\Exception $e) {
             return redirect('/product')->with('error', 'An error occurred: ' . $e->getMessage());
@@ -155,9 +189,9 @@ class ProductController extends Controller
             return redirect()->back()->withInput()->with('error', $message);
         }
         try {
-            $model = Product::find($request->id);
+            $model = Cart::find($request->id);
             if (!$model) {
-                return redirect()->back()->with('error', 'Product not found');
+                return redirect()->back()->with('error', 'Cart not found');
             }
             $all_images = null;
 
@@ -177,9 +211,9 @@ class ProductController extends Controller
             $model->fill($request->all());
             $model->image = $all_images;
             if ($model->save()) {
-                return redirect()->back()->with('success', 'Product updated successfully!');
+                return redirect()->back()->with('success', 'Cart updated successfully!');
             } else {
-                return redirect()->back()->with('error', 'Product not updated');
+                return redirect()->back()->with('error', 'Cart not updated');
             }
         } catch (\Exception $e) {
             $bug = $e->getMessage();
@@ -195,9 +229,9 @@ class ProductController extends Controller
     public function getList(Request $request, $id = null)
     {
         if (User::isUser()) {
-            $query = Product::my()->orderBy('id', 'desc');
+            $query = Cart::my()->with('product')->orderBy('id', 'desc');
         } else {
-            $query = Product::orderBy('id', 'desc');
+            $query = Cart::with('product')->orderBy('id', 'desc');
         }
 
         if (!empty($id))
@@ -206,19 +240,35 @@ class ProductController extends Controller
         return Datatables::of($query)
             ->addIndexColumn()
             ->addColumn('select', function ($data) {
-                return '<input class="form-check-input select-product" type="checkbox"  value="" id="flexCheckDefault">';
+                return '
+                <!-- Quantity -->
+                <div class="d-flex " style="max-width: 300px">
+                  <button data-mdb-button-init data-mdb-ripple-init data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
+                    class="btn btn-link px-2" 
+                    onclick="this.parentNode.querySelector(\'input[type=number]\').stepDown()">
+                    <i class="fas fa-minus"></i>
+                  </button>
+            
+                  <div data-mdb-input-init class="form-outline">
+                    <input id="form1" min="0" name="quantity" value="5" type="number" class="form-control" />
+                  </div>
+            
+                  <button data-mdb-button-init data-mdb-ripple-init data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
+                    class="btn btn-link px-2" 
+                    onclick="increment(this)">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+            ';
             })
             ->addColumn('created_by', function ($data) {
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
             })
-            ->addColumn('title', function ($data) {
-                return !empty($data->title) ? (strlen($data->title) > 60 ? substr(ucfirst($data->title), 0, 60) . '...' : ucfirst($data->title)) : 'N/A';
+            ->addColumn('product_name', function ($data) {
+                return !empty($data->product) ? (strlen($data->product->name) > 60 ? substr(ucfirst($data->product->name), 0, 60) . '...' : ucfirst($data->product->name)) : 'N/A';
             })
             ->addColumn('price', function ($data) {
                 return number_format($data->price, 2);
-            })
-            ->addColumn('status', function ($data) {
-                return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
             })
             ->rawColumns(['created_by'])
 
@@ -230,9 +280,6 @@ class ProductController extends Controller
             })
             ->addColumn('bill_date', function ($data) {
                 return (empty($data->bill_date)) ? 'N/A' : date('Y-m-d', strtotime($data->bill_date));
-            })
-            ->addColumn('priority_id', function ($data) {
-                return $data->getPriority();
             })
 
             ->addColumn('department_id', function ($data) {
@@ -327,59 +374,59 @@ class ProductController extends Controller
     }
 
     public function add(Request $request)
-{
-    try {
-        // Validation
-        if ($this->validator($request->all())->fails()) {
-            $message = $this->validator($request->all())->messages()->first();
-            return redirect()->back()->withInput()->with('error', $message);
-        }
+    {
+        try {
+            // Validation
+            if ($this->validator($request->all())->fails()) {
+                $message = $this->validator($request->all())->messages()->first();
+                return redirect()->back()->withInput()->with('error', $message);
+            }
 
-        // Initialize the images array
-        $all_images = [];
-        $ticket_images = $request->file('images');
+            // Initialize the images array
+            $all_images = [];
+            $ticket_images = $request->file('images');
 
-        // Check if images were uploaded
-        if ($request->hasFile('images')) {
-            foreach ($ticket_images as $image) {
-                if ($image->isValid()) {
-                    $imageName = rand(1, 100000) . time() . '_' . $image->getClientOriginalName();
-                    $image->move(public_path('products'), $imageName);
-                    $all_images[] = $imageName;
+            // Check if images were uploaded
+            if ($request->hasFile('images')) {
+                foreach ($ticket_images as $image) {
+                    if ($image->isValid()) {
+                        $imageName = rand(1, 100000) . time() . '_' . $image->getClientOriginalName();
+                        $image->move(public_path('products'), $imageName);
+                        $all_images[] = $imageName;
+                    }
                 }
             }
-        }
 
-        // Create a new product model
-        $model = new Product();
-        $model->fill($request->all());
-        $model->state_id = Product::STATE_ACTIVE;
-        $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
-        $model->created_by_id = Auth::user()->id;
+            // Create a new product model
+            $model = new Cart();
+            $model->fill($request->all());
+            $model->state_id = Cart::STATE_ACTIVE;
+            $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
+            $model->created_by_id = Auth::user()->id;
 
-        // Save the model
-        if ($model->save()) {
-            return redirect('/product')->with('success', 'Product created successfully!');
-        } else {
-            return redirect('/product/create')->with('error', 'Unable to save the Product!');
+            // Save the model
+            if ($model->save()) {
+                return redirect('/product')->with('success', 'Cart created successfully!');
+            } else {
+                return redirect('/product/create')->with('error', 'Unable to save the Cart!');
+            }
+        } catch (\Exception $e) {
+            $bug = $e->getMessage();
+            return redirect()->back()->withInput()->with('error', $bug);
         }
-    } catch (\Exception $e) {
-        $bug = $e->getMessage();
-        return redirect()->back()->withInput()->with('error', $bug);
     }
-}
 
 
 
     public function stateChange($id, $state)
     {
         try {
-            $model = Product::find($id);
+            $model = Cart::find($id);
             if ($model) {
                 $update = $model->update([
                     'state_id' => $state,
                 ]);
-                return redirect()->back()->with('success', 'Product has been ' . (($model->getState() != "New") ? $model->getState() . 'd!' : $model->getState()));
+                return redirect()->back()->with('success', 'Cart has been ' . (($model->getState() != "New") ? $model->getState() . 'd!' : $model->getState()));
             } else {
                 return redirect('404');
             }
@@ -392,10 +439,10 @@ class ProductController extends Controller
     public function finalDelete($id)
     {
         try {
-            $model = Product::find($id);
+            $model = Cart::find($id);
             if ($model) {
                 $model->delete();
-                return redirect('support')->with('success', 'Product has been deleted successfully!');
+                return redirect('support')->with('success', 'Cart has been deleted successfully!');
             } else {
                 return redirect('404');
             }
