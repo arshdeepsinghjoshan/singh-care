@@ -32,30 +32,71 @@ class CartController extends Controller
         return Validator::make(
             $data,
             [
-                'name' => 'required|string|max:255',
-                'price' => 'required',
-                'hsn_code' => 'required',
-                'batch_no' => 'required|string|max:255'
-            ],
-            [
-                'title.required' => 'The subject field is required.',
-                'title.max' => 'The subject field must not exceed 255 characters.',
-                'department_id.required' => 'The department field is required.',
-                'priority_id.required' => 'The priority field is required.',
-                'message.required' => 'The message field is required.',
-                'message.max' => 'The message field must not exceed 255 characters.'
+                'product_id' => 'required|exists:products,id',
+                'type_id' => 'required',
             ]
         );
     }
 
     public function changeQuantity(Request $request)
     {
-        if ($this->changeQuantityValidator($request->all())->fails()) {
-            $message = $this->validator($request->all())->messages()->first();
-            // return redirect()->back()->withInput()->with('error', $message);
+        try {
+            if ($this->changeQuantityValidator($request->all())->fails()) {
+                $message = $this->validator($request->all())->messages()->first();
+                return response()->json([
+                    'status' => 422,
+                    'message' => $message,
+                ]);
+            }
+            $model = Cart::where('product_id', $request->product_id)->first();
+            if (!$model) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => 'Product not found in the cart.',
+                ]);
+            }
+
+            // Fetch the product details
+            $productModel = Product::find($request->product_id);
+            if (!$productModel) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => 'Product not found.',
+                ]);
+            }
+            if ($request->type_id == "1") {
+                // Increment quantity
+                if ($model->quantity >= 20) {
+                    return response()->json([
+                        'status' => 422,
+                        'message' => "We're sorry! Only 20 unit(s) allowed in each order.",
+                    ]);
+                }
+                $quantity = $model->quantity + 1;
+            } else {
+                // Decrement quantity
+                if ($model->quantity <= 1) {
+                    return response()->json([
+                        'status' => 422,
+                        'message' => "Quantity cannot be less than 1.",
+                    ]);
+                }
+                $quantity = $model->quantity - 1;
+            }
+            // Update total price and save changes
+            $total_price = $productModel->price * $quantity;
+            $model->update([
+                'quantity' => $quantity,
+                'total_price' => $total_price,
+            ]);
+            return response()->json([
+                'status' => 200,
+                'message' => 'Quantity updated successfully!',
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 422,
-                'message' => $message,
+                'message' => 'An error occurred: ' . $e->getMessage(),
             ]);
         }
     }
@@ -243,8 +284,8 @@ class CartController extends Controller
                 return '
                 <!-- Quantity -->
                 <div class="d-flex " style="max-width: 300px">
-                  <button data-mdb-button-init data-mdb-ripple-init data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
-                    class="btn btn-link px-2" 
+                  <button data-mdb-button-init data-mdb-ripple-init data-type="0" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
+                    class="btn btn-link px-2 changeQuantity" 
                     onclick="this.parentNode.querySelector(\'input[type=number]\').stepDown()">
                     <i class="fas fa-minus"></i>
                   </button>
@@ -253,9 +294,9 @@ class CartController extends Controller
                     <input id="form1" min="0" name="quantity" value="5" type="number" class="form-control" />
                   </div>
             
-                  <button data-mdb-button-init data-mdb-ripple-init data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
-                    class="btn btn-link px-2" 
-                    onclick="increment(this)">
+                  <button data-mdb-button-init data-mdb-ripple-init data-type="1" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
+                    class="btn btn-link px-2 changeQuantity" 
+                    >
                     <i class="fas fa-plus"></i>
                   </button>
                 </div>

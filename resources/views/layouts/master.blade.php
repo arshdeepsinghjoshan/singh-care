@@ -86,6 +86,7 @@
     <script src="{{ url('/js/state_change.js') }}"></script>
     <script src="{{ url('/assets/js/ui-toasts.js') }}"></script>
 
+
   
 
     <script>

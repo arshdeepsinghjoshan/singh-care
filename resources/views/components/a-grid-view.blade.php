@@ -4,21 +4,21 @@
     <thead>
         <tr>
             @foreach ($columns as $column)
-                <th>
-                    @if (method_exists($model, 'attributeLabels'))
-                        {{ $model->attributeLabels($column) }}
-                    @else
-                        @if (is_array($column))
-                            @if (isset($column['label']))
-                                {{ $column['label'] }}
-                            @else
-                                {{ ucwords(str_replace('_', ' ', $column['attribute'])) }}
-                            @endif
-                        @else
-                            {{ ucwords(str_replace('_', ' ', $column)) }}
-                        @endif
-                    @endif
-                </th>
+            <th>
+                @if (method_exists($model, 'attributeLabels'))
+                {{ $model->attributeLabels($column) }}
+                @else
+                @if (is_array($column))
+                @if (isset($column['label']))
+                {{ $column['label'] }}
+                @else
+                {{ ucwords(str_replace('_', ' ', $column['attribute'])) }}
+                @endif
+                @else
+                {{ ucwords(str_replace('_', ' ', $column)) }}
+                @endif
+                @endif
+            </th>
             @endforeach
         </tr>
     </thead>
@@ -32,78 +32,146 @@
 
 <script>
     (function($) {
+    console.log('i am working');
+
         'use strict';
-            // Ensure $id is valid before using it in a jQuery selector
-            var tableId = '{{ $id }}';
-            if (tableId) { // Added check to ensure tableId is not empty
-                var table = $('#' + tableId).DataTable({
-                    order: [],
-                    lengthMenu: [
-                        [10, 25, 50, 100, 500],
-                        [10, 25, 50, 100, 500]
-                    ],
-                    processing: true,
-                    serverSide: true,
-                    autoWidth: false,
-                    dom: "<'row'<'col-sm-2'l><'col-sm-7 text-center'B><'col-sm-3'f>>tipr",
-                    language: {
-                        processing: '<div class="spinner-border" style="width: 50px; height: 50px;" role="status"><span class="visually-hidden">Loading...</span></div>'
-                    },
-                    ajax: {
-                        url: "{{ $url }}",
-                        type: "GET",
-                        data: function(d) {
-                            @foreach ($customfilterIds as $customfilterId)
-                                var filterId = '{{ $customfilterId }}';
-                                if (filterId && $('#' + filterId)
-                                    .length) { // Check if filterId element exists
-                                    d[filterId] = $('#' + filterId).val();
-                                }
-                            @endforeach
-                        },
-                        error: function(xhr, error, thrown) {
-                            console.log('Error details:', xhr.responseText);
-                            alert(
-                                'An error occurred while loading the data. Please check the console for more details.');
+        // Ensure $id is valid before using it in a jQuery selector
+        var tableId = '{{ $id }}';
+        if (tableId) { // Added check to ensure tableId is not empty
+            var table = $('#' + tableId).DataTable({
+                order: [],
+                lengthMenu: [
+                    [10, 25, 50, 100, 500],
+                    [10, 25, 50, 100, 500]
+                ],
+                processing: true,
+                serverSide: true,
+                autoWidth: false,
+                dom: "<'row'<'col-sm-2'l><'col-sm-7 text-center'B><'col-sm-3'f>>tipr",
+                language: {
+                    processing: '<div class="spinner-border" style="width: 50px; height: 50px;" role="status"><span class="visually-hidden">Loading...</span></div>'
+                },
+                ajax: {
+                    url: "{{ $url }}",
+                    type: "GET",
+                    data: function(d) {
+                        @foreach($customfilterIds as $customfilterId)
+                        var filterId = '{{ $customfilterId }}';
+                        if (filterId && $('#' + filterId)
+                            .length) { // Check if filterId element exists
+                            d[filterId] = $('#' + filterId).val();
                         }
+                        @endforeach
                     },
-                    columns: [
-                        @foreach ($columns as $column)
-                            {
-                                @if (is_array($column))
-                                    data: '{{ $column['attribute'] ?? '' }}',
-                                    name: '{{ $column['attribute'] ?? '' }}'
-                                @else
-                                    data: '{{ $column }}',
-                                    name: '{{ $column }}'
-                                @endif
-                            },
+                    error: function(xhr, error, thrown) {
+                        console.log('Error details:', xhr.responseText);
+                        alert(
+                            'An error occurred while loading the data. Please check the console for more details.');
+                    }
+                },
+                columns: [
+                    @foreach($columns as $column) {
+                        @if(is_array($column))
+                        data: '{{ $column['
+                        attribute '] ?? '
+                        ' }}',
+                        name: '{{ $column['
+                        attribute '] ?? '
+                        ' }}'
+                        @else
+                        data: '{{ $column }}',
+                            name: '{{ $column }}'
+                        @endif
+                    },
+                    @endforeach
+                ],
+                buttons: [
+                    @foreach($buttons as $button)
+                    @if(is_array($button)) {
+                        @foreach($button as $key => $value)
+                        '{{ $key }}': '{{ $value }}',
                         @endforeach
-                    ],
-                    buttons: [
-                        @foreach ($buttons as $button)
-                            @if (is_array($button))
-                                {
-                                    @foreach ($button as $key => $value)
-                                        '{{ $key }}': '{{ $value }}',
-                                    @endforeach
-                                },
-                            @else
-                                '{{ $button }}',
-                            @endif
-                        @endforeach
-                    ]
+                    },
+                    @else '{{ $button }}',
+                    @endif
+                    @endforeach
+                ]
+            });
+
+
+            // Ensure $filterButtonId is valid before using it in a jQuery selector
+            var filterButtonId = '{{ $filterButtonId }}';
+            if (filterButtonId) { // Added check to ensure filterButtonId is not empty
+                $('#' + filterButtonId).on('click', function() {
+                    table.ajax.reload();
+                });
+            }
+
+
+        }
+
+            $('.changeQuantity').click(function() {
+                increment(this);
+            });
+            async function setQuantity(product_id, type_id) {
+                $.ajax({
+                    url: "/cart/change-quantity",
+                    type: 'POST',
+                    data: {
+                        product_id: product_id,
+                        type_id: type_id,
+                    },
+                    success: function(res) {
+
+                        if (res.status == 200) {
+                            // getCartItems(id, total_field, nextInputElement);
+                            // UpdateTotalPrice(total_field, total_price, nextInputElement, total_qty);
+                            handleResponse(res);
+                        }
+                        if (res.status == 422) {
+                            handleResponse(res);
+                        }
+                        $('#userd_table').DataTable().ajax.reload(null, false)
+                    }
                 });
 
 
-                // Ensure $filterButtonId is valid before using it in a jQuery selector
-                var filterButtonId = '{{ $filterButtonId }}';
-                if (filterButtonId) { // Added check to ensure filterButtonId is not empty
-                    $('#' + filterButtonId).on('click', function() {
-                        table.ajax.reload();
-                    });
-                }
-              
             }
+
+            function handleResponse(response) {
+                var toastG = document.getElementById('toastG');
+                var toastBody = toastG.querySelector('.toast-body');
+
+                if (response.status === 200) {
+                    toastG.classList.remove('bg-danger'); // Remove error class if previously set
+                    toastG.classList.add('bg-success'); // Set success class
+
+                    // Update toast message
+                    toastBody.innerText = response.message;
+
+                    // Show toast using Bootstrap's method
+                    var bsToast = new bootstrap.Toast(toastG);
+                    bsToast.show();
+                } else {
+                    handleError(response.message);
+                }
+            }
+
+
+            function handleError(error) {
+                var toastG = document.getElementById('toastG');
+                var toastBody = toastG.querySelector('.toast-body');
+
+                toastG.classList.remove('bg-success'); // Remove success class if previously set
+                toastG.classList.add('bg-danger'); // Set error class
+
+                // Update toast message
+                toastBody.innerText = error;
+
+                // Show toast using Bootstrap's method
+                var bsToast = new bootstrap.Toast(toastG);
+                bsToast.show();
+            }
+        
     })(jQuery);
 </script>
