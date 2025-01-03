@@ -32,7 +32,7 @@ return new class extends Migration
             $table->integer('tax_id')->nullable();
             $table->integer('created_by_id');
             $table->timestamp('bill_date');
-            $table->timestamp('expiry_date');
+            $table->timestamp('expiry_date')->nullable();
             $table->timestamps();
         });
         Schema::table('products', function (Blueprint $table) {

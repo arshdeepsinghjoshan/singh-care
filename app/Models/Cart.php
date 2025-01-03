@@ -60,6 +60,11 @@ class Cart extends Model
         ];
     }
 
+    public function getTotalPriceSum()
+    {
+        $query =  Cart::my();
+        return $query->sum('total_price');
+    }
     public static function getOrderStatusOptions()
     {
         return [
@@ -231,14 +236,14 @@ class Cart extends Model
         return [];
     }
 
-    
+
     public function comment()
     {
         return $this->hasOne(Comment::class, 'model_id')
             ->where('model_type', self::class);
     }
 
-    
+
     public function product()
     {
         return $this->belongsTo(Product::class);
