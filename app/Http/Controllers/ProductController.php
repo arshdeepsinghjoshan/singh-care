@@ -206,7 +206,8 @@ class ProductController extends Controller
         return Datatables::of($query)
             ->addIndexColumn()
             ->addColumn('select', function ($data) {
-                return '<input class="form-check-input select-product" type="checkbox"  value="" id="flexCheckDefault">';
+                $checked = $data->cart ? 'checked' : ''; // If the relationship exists, mark as checked
+                return '<input class="form-check-input select-product" data-product_id="' . $data->id . '" type="checkbox" ' . $checked . ' value="" >';
             })
             ->addColumn('created_by', function ($data) {
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
@@ -327,47 +328,47 @@ class ProductController extends Controller
     }
 
     public function add(Request $request)
-{
-    try {
-        // Validation
-        if ($this->validator($request->all())->fails()) {
-            $message = $this->validator($request->all())->messages()->first();
-            return redirect()->back()->withInput()->with('error', $message);
-        }
+    {
+        try {
+            // Validation
+            if ($this->validator($request->all())->fails()) {
+                $message = $this->validator($request->all())->messages()->first();
+                return redirect()->back()->withInput()->with('error', $message);
+            }
 
-        // Initialize the images array
-        $all_images = [];
-        $ticket_images = $request->file('images');
+            // Initialize the images array
+            $all_images = [];
+            $ticket_images = $request->file('images');
 
-        // Check if images were uploaded
-        if ($request->hasFile('images')) {
-            foreach ($ticket_images as $image) {
-                if ($image->isValid()) {
-                    $imageName = rand(1, 100000) . time() . '_' . $image->getClientOriginalName();
-                    $image->move(public_path('products'), $imageName);
-                    $all_images[] = $imageName;
+            // Check if images were uploaded
+            if ($request->hasFile('images')) {
+                foreach ($ticket_images as $image) {
+                    if ($image->isValid()) {
+                        $imageName = rand(1, 100000) . time() . '_' . $image->getClientOriginalName();
+                        $image->move(public_path('products'), $imageName);
+                        $all_images[] = $imageName;
+                    }
                 }
             }
-        }
 
-        // Create a new product model
-        $model = new Product();
-        $model->fill($request->all());
-        $model->state_id = Product::STATE_ACTIVE;
-        $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
-        $model->created_by_id = Auth::user()->id;
+            // Create a new product model
+            $model = new Product();
+            $model->fill($request->all());
+            $model->state_id = Product::STATE_ACTIVE;
+            $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
+            $model->created_by_id = Auth::user()->id;
 
-        // Save the model
-        if ($model->save()) {
-            return redirect('/product')->with('success', 'Product created successfully!');
-        } else {
-            return redirect('/product/create')->with('error', 'Unable to save the Product!');
+            // Save the model
+            if ($model->save()) {
+                return redirect('/product')->with('success', 'Product created successfully!');
+            } else {
+                return redirect('/product/create')->with('error', 'Unable to save the Product!');
+            }
+        } catch (\Exception $e) {
+            $bug = $e->getMessage();
+            return redirect()->back()->withInput()->with('error', $bug);
         }
-    } catch (\Exception $e) {
-        $bug = $e->getMessage();
-        return redirect()->back()->withInput()->with('error', $bug);
     }
-}
 
 
 

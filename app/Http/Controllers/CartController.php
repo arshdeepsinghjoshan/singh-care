@@ -37,68 +37,82 @@ class CartController extends Controller
             ]
         );
     }
-
     public function changeQuantity(Request $request)
     {
         try {
-            if ($this->changeQuantityValidator($request->all())->fails()) {
-                $message = $this->changeQuantityValidator($request->all())->messages()->first();
+            // Validate the request
+            $validator = $this->changeQuantityValidator($request->all());
+            if ($validator->fails()) {
                 return response()->json([
                     'status' => 422,
-                    'message' => $message,
+                    'message' => $validator->messages()->first(),
                 ]);
             }
-            $model = Cart::where('product_id', $request->product_id)->first();
-            if (!$model) {
+
+            // Retrieve the cart item
+            $cartItem = Cart::where('product_id', $request->product_id)->first();
+            if (!$cartItem) {
                 return response()->json([
                     'status' => 422,
                     'message' => 'Product not found in the cart.',
                 ]);
             }
 
-            // Fetch the product details
-            $productModel = Product::find($request->product_id);
-            if (!$productModel) {
+            // Retrieve the product details
+            $product = Product::find($request->product_id);
+            if (!$product) {
                 return response()->json([
                     'status' => 422,
                     'message' => 'Product not found.',
                 ]);
             }
+
+            // Determine the new quantity
+            $quantity = $cartItem->quantity;
             if ($request->type_id == "1") {
-                if ($model->quantity >= 20) {
+                if ($quantity >= 20) {
                     return response()->json([
                         'status' => 422,
                         'message' => "We're sorry! Only 20 unit(s) allowed in each order.",
                     ]);
                 }
-                $quantity = $model->quantity + 1;
+                $quantity++;
             } else {
-                // Decrement quantity
-                if ($model->quantity <= 1) {
+                if ($quantity <= 1) {
                     return response()->json([
                         'status' => 422,
                         'message' => "Quantity cannot be less than 1.",
                     ]);
                 }
-                $quantity = $model->quantity - 1;
+                $quantity--;
             }
-            $total_price = $productModel->price * $quantity;
-           
-            $model->update([
+
+            // Calculate the total price
+            $totalPrice = $product->price * $quantity;
+
+            // Update the cart item
+            $cartItem->update([
                 'quantity' => $quantity,
-                'total_price' => $total_price,
+                'total_price' => $totalPrice,
             ]);
+
             return response()->json([
                 'status' => 200,
                 'message' => 'Quantity updated successfully!',
             ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Resource not found: ' . $e->getMessage(),
+            ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 422,
-                'message' => 'An error occurred: ' . $e->getMessage(),
+                'status' => 500,
+                'message' => 'An internal error occurred: ' . $e->getMessage(),
             ]);
         }
     }
+
     public function import(Request $request)
     {
         try {
@@ -390,24 +404,15 @@ class CartController extends Controller
 
 
 
-
-    protected static function validator(array $data, $id = null)
+    protected static function validator(array $data)
     {
         return Validator::make(
             $data,
             [
-                'name' => 'required|string|max:255',
-                'price' => 'required',
-                'hsn_code' => 'required',
-                'batch_no' => 'required|string|max:255'
+                'product_id' => 'required|exists:products,id', // Ensure the product exists
             ],
             [
-                'title.required' => 'The subject field is required.',
-                'title.max' => 'The subject field must not exceed 255 characters.',
-                'department_id.required' => 'The department field is required.',
-                'priority_id.required' => 'The priority field is required.',
-                'message.required' => 'The message field is required.',
-                'message.max' => 'The message field must not exceed 255 characters.'
+                'product_id.exists' => 'The selected product does not exist.',
             ]
         );
     }
@@ -415,45 +420,95 @@ class CartController extends Controller
     public function add(Request $request)
     {
         try {
-            // Validation
-            if ($this->validator($request->all())->fails()) {
-                $message = $this->validator($request->all())->messages()->first();
-                return redirect()->back()->withInput()->with('error', $message);
+            // Validate the request data
+            $validator = $this->validator($request->all());
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => $validator->messages()->first(),
+                ]);
             }
-
-            // Initialize the images array
-            $all_images = [];
-            $ticket_images = $request->file('images');
-
-            // Check if images were uploaded
-            if ($request->hasFile('images')) {
-                foreach ($ticket_images as $image) {
-                    if ($image->isValid()) {
-                        $imageName = rand(1, 100000) . time() . '_' . $image->getClientOriginalName();
-                        $image->move(public_path('products'), $imageName);
-                        $all_images[] = $imageName;
-                    }
+    
+            $typeId = $request->type_id; // Get type_id from the request
+    
+            // Handle Add to Cart
+            if ($typeId == 1) {
+                // Check if the product is already in the cart
+                $existingCart = Cart::where('product_id', $request->product_id)->first();
+                if ($existingCart) {
+                    return response()->json([
+                        'status' => 409,
+                        'message' => 'Product is already in the cart. Update the quantity if needed.',
+                    ]);
+                }
+    
+                // Retrieve the product details
+                $product = Product::find($request->product_id);
+                if (!$product) {
+                    return response()->json([
+                        'status' => 404,
+                        'message' => 'Product not found.',
+                    ]);
+                }
+    
+                $quantity = 1;
+                $cart = new Cart();
+                $cart->product_id = $request->product_id;
+                $cart->quantity = $quantity;
+                $cart->total_price = $product->price * $quantity;
+                $cart->unit_price = $product->price;
+                $cart->created_by_id = Auth::id();
+    
+                if ($cart->save()) {
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Product added to cart successfully!',
+                        'cart' => $cart,
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'Failed to add product to the cart.',
+                    ]);
                 }
             }
-
-            // Create a new product model
-            $model = new Cart();
-            $model->fill($request->all());
-            $model->state_id = Cart::STATE_ACTIVE;
-            $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
-            $model->created_by_id = Auth::user()->id;
-
-            // Save the model
-            if ($model->save()) {
-                return redirect('/product')->with('success', 'Cart created successfully!');
-            } else {
-                return redirect('/product/create')->with('error', 'Unable to save the Cart!');
+    
+            // Handle Remove from Cart
+            if ($typeId == 0) {
+                $cart = Cart::where('product_id', $request->product_id)->first();
+                if (!$cart) {
+                    return response()->json([
+                        'status' => 404,
+                        'message' => 'Product not found in the cart.',
+                    ]);
+                }
+    
+                if ($cart->delete()) {
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Product removed from cart successfully!',
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'Failed to remove product from the cart.',
+                    ]);
+                }
             }
+    
+            // If type_id is invalid
+            return response()->json([
+                'status' => 400,
+                'message' => 'Invalid type_id. Use 1 to add or 0 to remove.',
+            ]);
         } catch (\Exception $e) {
-            $bug = $e->getMessage();
-            return redirect()->back()->withInput()->with('error', $bug);
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ]);
         }
     }
+    
 
 
 

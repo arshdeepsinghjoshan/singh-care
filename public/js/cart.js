@@ -38,7 +38,7 @@ $(document).ready(function () {
                 if (res.status == 422) {
                     handleResponse(res);
                 }
-                $('#userd_table').DataTable().ajax.reload(null, false)
+                $('#cart_list').DataTable().ajax.reload(null, false)
             }
         });
 

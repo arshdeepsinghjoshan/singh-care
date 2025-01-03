@@ -21,7 +21,7 @@
 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <x-a-grid-view :id="'user_table'" :model="$model" :url="'product/get-list'" :columns="[
+                        <x-a-grid-view :id="'order_product_table'" :model="$model" :url="'product/get-list'" :columns="[
                                 'select',
                                 'name',
                                 'description',
@@ -38,7 +38,7 @@
 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <x-a-grid-view :id="'userd_table'" :model="$model" :url="'cart/get-list'"
+                        <x-a-grid-view :id="'cart_list'" :model="$model" :url="'cart/get-list'"
                             :filterButtonId="'order_filter_button'"
                             :customfilterIds="
                                [

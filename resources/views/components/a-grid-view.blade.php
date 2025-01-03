@@ -32,8 +32,6 @@
 
 <script>
     (function($) {
-        console.log('i am working');
-
         'use strict';
         // Ensure $id is valid before using it in a jQuery selector
         var tableId = '{{ $id }}';
@@ -106,21 +104,61 @@
                     table.ajax.reload();
                 });
             }
-
-
         }
-        if (tableId == 'userd_table') {
+
+        if (tableId == 'cart_list') {
             $(document).on('click', '.changeQuantity', function(e) {
                 // Prevent default action (if needed)
                 e.preventDefault();
-
                 // `this` refers to the button that was clicked
                 var product = JSON.parse(this.getAttribute("data-product"));
                 var product_id = product?.product?.id || 0;
                 var type_id = this.getAttribute("data-type");
-
                 // Call your function with the appropriate arguments
                 setQuantity(product_id, type_id);
+            });
+        }
+        if (tableId == 'order_product_table') {
+            $(document).on('click', '.select-product', function(e) {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                e.preventDefault();
+                const productId = $(this).data('product_id'); // Get the product ID from the data attribute
+                const isChecked = $(this).is(':checked')
+                let type_id = ''; // Declared as const
+                if (isChecked) {
+                    type_id = '1'; // Trying to reassign a const variable
+                } else {
+                    type_id = '0'; // Trying to reassign a const variable
+                }
+
+
+                $.ajax({
+                    url: '/cart/add', // Replace with your API endpoint
+                    method: 'POST',
+                    data: {
+                        product_id: productId,
+                        type_id: type_id
+                    },
+                    success: function(response) {
+                        table.ajax.reload();
+                        handleResponse(response);
+                        $('#cart_list').DataTable().ajax.reload();
+                      var  tablee = $("#cart_list").DataTable();
+                      tablee.ajax.reload(null, false); 
+
+                    },
+                    error: function(xhr) {
+                        table.ajax.reload();
+
+                        handleResponse(response);
+                        table.ajax.reload();
+
+                    }
+                });
             });
         }
         async function setQuantity(product_id, type_id) {
@@ -138,15 +176,12 @@
                     type_id: type_id,
                 },
                 success: function(res) {
-
                     if (res.status == 200) {
                         table.ajax.reload();
-
-                        // getCartItems(id, total_field, nextInputElement);
-                        // UpdateTotalPrice(total_field, total_price, nextInputElement, total_qty);
                         handleResponse(res);
                     }
                     if (res.status == 422) {
+                        table.ajax.reload();
                         handleResponse(res);
                     }
                 }
@@ -158,14 +193,11 @@
         function handleResponse(response) {
             var toastG = document.getElementById('toastG');
             var toastBody = toastG.querySelector('.toast-body');
-
             if (response.status === 200) {
                 toastG.classList.remove('bg-danger'); // Remove error class if previously set
                 toastG.classList.add('bg-success'); // Set success class
-
                 // Update toast message
                 toastBody.innerText = response.message;
-
                 // Show toast using Bootstrap's method
                 var bsToast = new bootstrap.Toast(toastG);
                 bsToast.show();
@@ -178,13 +210,10 @@
         function handleError(error) {
             var toastG = document.getElementById('toastG');
             var toastBody = toastG.querySelector('.toast-body');
-
             toastG.classList.remove('bg-success'); // Remove success class if previously set
             toastG.classList.add('bg-danger'); // Set error class
-
             // Update toast message
             toastBody.innerText = error;
-
             // Show toast using Bootstrap's method
             var bsToast = new bootstrap.Toast(toastG);
             bsToast.show();

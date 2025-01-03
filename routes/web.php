@@ -156,7 +156,6 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         Route::get('cart', [CartController::class, 'index']);
         Route::get('cart/create', [CartController::class, 'create']);
-        Route::post('cart/import', [CartController::class, 'import'])->name('cart.import');
         Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
         Route::post('cart/change-quantity', [CartController::class, 'changeQuantity'])->name('cart.change_quantity');
         Route::get('/cart/get-list', [CartController::class, 'getList']);
