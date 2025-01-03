@@ -98,9 +98,36 @@ $segment2 = request()->segment(2);
         </li>
         @endif
 
+        <li class="menu-header small text-uppercase"><span class="menu-header-text">Product Management</span></li>
+        @if (User::isAdmin())
+        <!-- Product Managment -->
+        <li class="menu-item {{ $segment1 == 'product' && $segment2 == 'category' ? 'active' : '' }}">
+            <a href="{{ url('product/category') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-collection"></i>
+                <div data-i18n="Basic">Category</div>
+            </a>
+        </li>
+        @endif
+        <li class="menu-item {{ $segment1 == 'product' && $segment2 != 'category' ? 'active' : '' }}">
+            <a href="{{ url('product') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-file"></i>
+                <div data-i18n="Basic">Products</div>
+            </a>
+        </li>
 
+        <li class="menu-header small text-uppercase"><span class="menu-header-text">Order Management</span></li>
+        @if (User::isAdmin())
+        <!-- Order Managment -->
+        <li class="menu-item {{ $segment1 == 'order' && $segment2 == 'category' ? 'active' : '' }}">
+            <a href="{{ url('order') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-collection"></i>
+                <div data-i18n="Basic">Orders</div>
+            </a>
+        </li>
+        @endif
+        
 
-        <li class="menu-header small text-uppercase"><span class="menu-header-text">Support</span></li>
+        <li class="menu-header small text-uppercase"><span class="menu-header-text">Support Management</span></li>
         @if (User::isAdmin())
         <!-- Support Managment -->
         <li class="menu-item {{ $segment1 == 'support' && $segment2 == 'department' ? 'active' : '' }}">

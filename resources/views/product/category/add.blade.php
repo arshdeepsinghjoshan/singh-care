@@ -6,12 +6,10 @@
             'label' => 'Home',
         ],
         [
-            'url' => 'support',
-            'label' => 'Support',
+            'url' => 'product/category',
+            'label' => 'Product Category',
         ],
-         $model->name,
     ]" />
-
 
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="row">
@@ -27,8 +25,7 @@
                     </h3>
                 </div>
                 <div class="card-body">
-                    @include('support.support._form')
-
+                    @include('category.department._form')
                 </div>
             </div>
         </div>

@@ -84,6 +84,8 @@
     <script src="{{ url('/assets/js/main.js') }}"></script>
     <script src="{{ url('/assets/js/dashboards-analytics.js') }}"></script>
     <script src="{{ url('/js/state_change.js') }}"></script>
+    <script src="{{ url('/assets/js/ui-toasts.js') }}"></script>
+
 
   
 

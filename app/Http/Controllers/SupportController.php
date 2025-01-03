@@ -21,7 +21,7 @@ class SupportController extends Controller
         try {
          
             $model = new Support();
-            return view('support.support.index', compact('model'));
+            return view('support.index', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
@@ -36,7 +36,7 @@ class SupportController extends Controller
             $model  = Support::find($id);
             if ($model) {
                
-                return view('support.support.update', compact('model'));
+                return view('support.update', compact('model'));
             } else {
                 return redirect()->back()->with('error', 'Support not found');
             }
@@ -54,7 +54,7 @@ class SupportController extends Controller
             $model  = new Support();
             if ($model) {
                
-                return view('support.support.update', compact('model'));
+                return view('support.update', compact('model'));
             } else {
                 return redirect('404');
             }
@@ -69,7 +69,7 @@ class SupportController extends Controller
             $model  = Support::find($id);
             if ($model) {
             
-                return view('support.support.view', compact('model'));
+                return view('support.view', compact('model'));
             } else {
                 return redirect()->back()->with('error', 'Support not found');
             }
