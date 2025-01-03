@@ -42,7 +42,7 @@ class CartController extends Controller
     {
         try {
             if ($this->changeQuantityValidator($request->all())->fails()) {
-                $message = $this->validator($request->all())->messages()->first();
+                $message = $this->changeQuantityValidator($request->all())->messages()->first();
                 return response()->json([
                     'status' => 422,
                     'message' => $message,
@@ -65,7 +65,6 @@ class CartController extends Controller
                 ]);
             }
             if ($request->type_id == "1") {
-                // Increment quantity
                 if ($model->quantity >= 20) {
                     return response()->json([
                         'status' => 422,
@@ -83,8 +82,8 @@ class CartController extends Controller
                 }
                 $quantity = $model->quantity - 1;
             }
-            // Update total price and save changes
             $total_price = $productModel->price * $quantity;
+           
             $model->update([
                 'quantity' => $quantity,
                 'total_price' => $total_price,
@@ -284,14 +283,13 @@ class CartController extends Controller
                 return '
                 <!-- Quantity -->
                 <div class="d-flex " style="max-width: 300px">
-                  <button data-mdb-button-init data-mdb-ripple-init data-type="0" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
-                    class="btn btn-link px-2 changeQuantity" 
-                    onclick="this.parentNode.querySelector(\'input[type=number]\').stepDown()">
+                  <button  data-type="0" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 
+                    class="btn btn-link px-2 changeQuantity">
                     <i class="fas fa-minus"></i>
                   </button>
             
                   <div data-mdb-input-init class="form-outline">
-                    <input id="form1" min="0" name="quantity" value="5" type="number" class="form-control" />
+                    <input id="form1" min="0" name="quantity" value="' . $data->quantity . '" type="number" disabled class="form-control" />
                   </div>
             
                   <button data-mdb-button-init data-mdb-ripple-init data-type="1" data-product=\'' . htmlspecialchars($data, ENT_QUOTES, 'UTF-8') . '\' 

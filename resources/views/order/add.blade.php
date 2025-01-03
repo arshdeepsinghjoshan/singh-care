@@ -38,7 +38,6 @@
 
                 <div class="card-body">
                     <div class="table-responsive">
-<button id="order_filter_button">button</button>
                         <x-a-grid-view :id="'userd_table'" :model="$model" :url="'cart/get-list'"
                             :filterButtonId="'order_filter_button'"
                             :customfilterIds="

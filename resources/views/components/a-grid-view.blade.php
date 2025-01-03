@@ -32,7 +32,7 @@
 
 <script>
     (function($) {
-    console.log('i am working');
+        console.log('i am working');
 
         'use strict';
         // Ensure $id is valid before using it in a jQuery selector
@@ -109,69 +109,86 @@
 
 
         }
+        if (tableId == 'userd_table') {
+            $(document).on('click', '.changeQuantity', function(e) {
+                // Prevent default action (if needed)
+                e.preventDefault();
 
-            $('.changeQuantity').click(function() {
-                increment(this);
+                // `this` refers to the button that was clicked
+                var product = JSON.parse(this.getAttribute("data-product"));
+                var product_id = product?.product?.id || 0;
+                var type_id = this.getAttribute("data-type");
+
+                // Call your function with the appropriate arguments
+                setQuantity(product_id, type_id);
             });
-            async function setQuantity(product_id, type_id) {
-                $.ajax({
-                    url: "/cart/change-quantity",
-                    type: 'POST',
-                    data: {
-                        product_id: product_id,
-                        type_id: type_id,
-                    },
-                    success: function(res) {
-
-                        if (res.status == 200) {
-                            // getCartItems(id, total_field, nextInputElement);
-                            // UpdateTotalPrice(total_field, total_price, nextInputElement, total_qty);
-                            handleResponse(res);
-                        }
-                        if (res.status == 422) {
-                            handleResponse(res);
-                        }
-                        $('#userd_table').DataTable().ajax.reload(null, false)
-                    }
-                });
-
-
-            }
-
-            function handleResponse(response) {
-                var toastG = document.getElementById('toastG');
-                var toastBody = toastG.querySelector('.toast-body');
-
-                if (response.status === 200) {
-                    toastG.classList.remove('bg-danger'); // Remove error class if previously set
-                    toastG.classList.add('bg-success'); // Set success class
-
-                    // Update toast message
-                    toastBody.innerText = response.message;
-
-                    // Show toast using Bootstrap's method
-                    var bsToast = new bootstrap.Toast(toastG);
-                    bsToast.show();
-                } else {
-                    handleError(response.message);
+        }
+        async function setQuantity(product_id, type_id) {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
-            }
+            });
+
+            $.ajax({
+                url: "/cart/change-quantity",
+                type: 'POST',
+                data: {
+                    product_id: product_id,
+                    type_id: type_id,
+                },
+                success: function(res) {
+
+                    if (res.status == 200) {
+                        table.ajax.reload();
+
+                        // getCartItems(id, total_field, nextInputElement);
+                        // UpdateTotalPrice(total_field, total_price, nextInputElement, total_qty);
+                        handleResponse(res);
+                    }
+                    if (res.status == 422) {
+                        handleResponse(res);
+                    }
+                }
+            });
 
 
-            function handleError(error) {
-                var toastG = document.getElementById('toastG');
-                var toastBody = toastG.querySelector('.toast-body');
+        }
 
-                toastG.classList.remove('bg-success'); // Remove success class if previously set
-                toastG.classList.add('bg-danger'); // Set error class
+        function handleResponse(response) {
+            var toastG = document.getElementById('toastG');
+            var toastBody = toastG.querySelector('.toast-body');
+
+            if (response.status === 200) {
+                toastG.classList.remove('bg-danger'); // Remove error class if previously set
+                toastG.classList.add('bg-success'); // Set success class
 
                 // Update toast message
-                toastBody.innerText = error;
+                toastBody.innerText = response.message;
 
                 // Show toast using Bootstrap's method
                 var bsToast = new bootstrap.Toast(toastG);
                 bsToast.show();
+            } else {
+                handleError(response.message);
             }
-        
+        }
+
+
+        function handleError(error) {
+            var toastG = document.getElementById('toastG');
+            var toastBody = toastG.querySelector('.toast-body');
+
+            toastG.classList.remove('bg-success'); // Remove success class if previously set
+            toastG.classList.add('bg-danger'); // Set error class
+
+            // Update toast message
+            toastBody.innerText = error;
+
+            // Show toast using Bootstrap's method
+            var bsToast = new bootstrap.Toast(toastG);
+            bsToast.show();
+        }
+
     })(jQuery);
 </script>

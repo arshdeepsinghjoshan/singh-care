@@ -9,9 +9,9 @@ $(document).ready(function () {
         }
     });
 
-    $('.changeQuantity').click(function () {
-        increment(this);
-    });
+    // $('.changeQuantity').click(function () {
+    //     increment(this);
+    // });
     // Event listener for state change
     function increment(e) {
         var product = JSON.parse(e.getAttribute("data-product"))
