@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductCategoryController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SubscribedPlanController;
 use App\Http\Controllers\SubscriptionPlanController;
@@ -10,6 +13,7 @@ use App\Http\Controllers\SupportDepartmentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WalletTransactionController;
+use App\Models\ProductCategory;
 use App\Models\SubscriptionPlan;
 use Illuminate\Support\Facades\Route;
 
@@ -113,5 +117,40 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::post('support/department/update/{id}', [SupportDepartmentController::class, 'update'])->name('supportDepartment.update');
         Route::get('/support/department/stateChange/{id}/{state_id}', [SupportDepartmentController::class, 'stateChange']);
         Route::get('/support/department/delete/{id}', [SupportDepartmentController::class, 'finalDelete']);
+
+
+
+
+        Route::get('product/category', [ProductCategoryController::class, 'index']);
+        Route::post('product/category/add', [ProductCategoryController::class, 'store'])->name('productCategory.add');
+        Route::get('/product/category/get-list', [ProductCategoryController::class, 'getDepartmenttList']);
+        Route::get('/product/category/edit/{id}', [ProductCategoryController::class, 'edit']);
+        Route::get('/product/category/view/{id}', [ProductCategoryController::class, 'view']);
+        Route::post('product/category/update/{id}', [ProductCategoryController::class, 'update'])->name('productCategory.update');
+        Route::get('/product/category/stateChange/{id}/{state_id}', [ProductCategoryController::class, 'stateChange']);
+        Route::get('/product/category/delete/{id}', [ProductCategoryController::class, 'finalDelete']);
+
+
+        Route::get('product', [ProductController::class, 'index']);
+        Route::get('product/create', [ProductController::class, 'create']);
+        Route::post('product/import', [ProductController::class, 'import'])->name('product.import');
+        Route::post('product/add', [ProductController::class, 'add'])->name('product.add');
+        Route::get('/product/get-list', [ProductController::class, 'getList']);
+        Route::get('/product/edit/{id}', [ProductController::class, 'edit']);
+        Route::get('/product/view/{id}', [ProductController::class, 'view']);
+        Route::post('product/update', [ProductController::class, 'update'])->name('product.update');
+
+
+
+        Route::get('order', [OrderController::class, 'index']);
+        Route::get('order/create', [OrderController::class, 'create']);
+        Route::post('order/import', [OrderController::class, 'import'])->name('order.import');
+        Route::post('order/add', [OrderController::class, 'add'])->name('order.add');
+        Route::get('/order/get-list', [OrderController::class, 'getList']);
+        Route::get('/order/edit/{id}', [OrderController::class, 'edit']);
+        Route::get('/order/view/{id}', [OrderController::class, 'view']);
+        Route::post('order/update', [OrderController::class, 'update'])->name('order.update');
+
+
     });
 });

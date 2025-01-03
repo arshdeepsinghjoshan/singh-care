@@ -23,7 +23,6 @@ return new class extends Migration
             $table->decimal('total_amount', 20, 6)->unsigned()->default(0);
             $table->decimal('delivery_charge', 20, 6)->unsigned()->default(0);
             $table->decimal('total_gst_amount', 20, 6)->unsigned()->default(0);
-            $table->decimal('total_bvs', 20, 6)->unsigned()->default(0);
             $table->integer('order_payment_status')->default(0)->comment('0 for pending, 1 for confirmed, 2 for rejected');
             $table->decimal('total_discount', 20, 6)->unsigned()->nullable();
             $table->integer('gift_card_id')->default(0);
@@ -36,7 +35,7 @@ return new class extends Migration
             $table->timestamps();
         });
         Schema::table('orders', function (Blueprint $table) {
-            $table->index('name');
+            $table->index('order_number');
             $table->index('created_by_id');
         });
     }
