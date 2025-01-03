@@ -291,6 +291,8 @@ class CartController extends Controller
         if (!empty($id))
             $query->where('id', $id);
 
+
+            $totalAmount = $query->sum('total_price');
         return Datatables::of($query)
             ->addIndexColumn()
             ->addColumn('select', function ($data) {
@@ -322,6 +324,9 @@ class CartController extends Controller
             })
             ->addColumn('price', function ($data) {
                 return number_format($data->price, 2);
+            })
+            ->addColumn('total_checkout_amount', function ($data) {
+                return number_format($totalAmount, 2);
             })
             ->rawColumns(['created_by'])
 
@@ -392,6 +397,7 @@ class CartController extends Controller
                     });
                 }
             })
+            ->with('total_checkout_amount', number_format($totalAmount, 2))
             ->make(true);
     }
 

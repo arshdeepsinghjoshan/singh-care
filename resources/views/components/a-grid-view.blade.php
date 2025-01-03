@@ -32,6 +32,8 @@
 
 <script>
     (function($) {
+        console.log('i am working');
+
         'use strict';
         // Ensure $id is valid before using it in a jQuery selector
         var tableId = '{{ $id }}';
@@ -106,6 +108,16 @@
             }
         }
 
+        function tableReload() {
+            table.ajax.reload();
+
+        }
+        var cart_table_reload = 'cart_table_reload';
+        if (cart_table_reload) { // Added check to ensure cart_table_reload is not empty
+            $('#' + cart_table_reload).on('click', function() {
+                tableReload()
+            });
+        }
         if (tableId == 'cart_list') {
             $(document).on('click', '.changeQuantity', function(e) {
                 // Prevent default action (if needed)
@@ -118,49 +130,41 @@
                 setQuantity(product_id, type_id);
             });
         }
-        if (tableId == 'order_product_table') {
-            $(document).on('click', '.select-product', function(e) {
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-                e.preventDefault();
-                const productId = $(this).data('product_id'); // Get the product ID from the data attribute
-                const isChecked = $(this).is(':checked')
-                let type_id = ''; // Declared as const
-                if (isChecked) {
-                    type_id = '1'; // Trying to reassign a const variable
-                } else {
-                    type_id = '0'; // Trying to reassign a const variable
+        $(document).on('click', '.select-product', function(e) {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
-
-
-                $.ajax({
-                    url: '/cart/add', // Replace with your API endpoint
-                    method: 'POST',
-                    data: {
-                        product_id: productId,
-                        type_id: type_id
-                    },
-                    success: function(response) {
-                        table.ajax.reload();
-                        handleResponse(response);
-                        $('#cart_list').DataTable().ajax.reload();
-                      var  tablee = $("#cart_list").DataTable();
-                      tablee.ajax.reload(null, false); 
-
-                    },
-                    error: function(xhr) {
-                        table.ajax.reload();
-
-                        handleResponse(response);
-                        table.ajax.reload();
-
-                    }
-                });
             });
-        }
+            e.preventDefault();
+            const productId = $(this).data('product_id'); // Get the product ID from the data attribute
+            const isChecked = $(this).is(':checked')
+            let type_id = ''; // Declared as const
+            if (isChecked) {
+                type_id = '1'; // Trying to reassign a const variable
+            } else {
+                type_id = '0'; // Trying to reassign a const variable
+            }
+
+
+            $.ajax({
+                url: '/cart/add', // Replace with your API endpoint
+                method: 'POST',
+                data: {
+                    product_id: productId,
+                    type_id: type_id
+                },
+                success: function(response) {
+                    tableReload()
+
+                },
+                error: function(xhr) {
+                    handleResponse(response);
+                    tableReload()
+
+                }
+            });
+        });
         async function setQuantity(product_id, type_id) {
             $.ajaxSetup({
                 headers: {

@@ -51,12 +51,31 @@
                                 'total_price',
                                 'unit_price',
                             ]" />
+
                     </div>
                 </div>
             </div>
+            <div class="card mt-4">
+
+                <h5 class="card-header">{{ __('Checkout') }}</h5>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <x-a-grid-view :id="'cart_checkout'" :model="$model" :url="'cart/get-list'"
+                            :filterButtonId="'order_filter_button'"
+                            :customfilterIds="
+                               [
+                                   'start_date',
+                                   'warehouse_id',
+                               ]"
+                            :columns="[
+                                'total_checkout_amount',
+                            ]" />
+                    </div>
+                </div>
+            </div>
+
         </div>
-
     </div>
-</div>
 
-@endsection
+    @endsection
