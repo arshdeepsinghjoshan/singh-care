@@ -134,7 +134,17 @@ class Order extends Model
         ];
         return isset($list[$this->status]) ?  'badge badge-' . $list[$this->status] : 'Not Defined';
     }
+    public function getStateButtonOption($state_id = null)
+    {
+        $list = [
+            self::STATE_INITIATED => "New",
+            self::STATE_PAID => "Active",
+            self::STATE_PENDING => "Banned",
+            self::STATE_FAILED => "Reject",
 
+        ];
+        return isset($list[$state_id]) ? 'btn btn-' . $list[$state_id] : 'Not Defined';
+    }
     public function getOrderStatusBadge()
     {
         $list = [
@@ -199,7 +209,7 @@ class Order extends Model
         }
     }
 
-    public function getStateBadgeOption($state_id)
+    public function getStateBadgeOption()
     {
         $list = [
             self::STATE_INITIATED => "secondary",
@@ -210,7 +220,7 @@ class Order extends Model
             self::ORDER_STATE_PARTIAL_SHIPMENT => "secondary",
             self::ORDER_STATE_RECEIVED => "secondary",
         ];
-        return isset($list[$state_id]) ? 'btn btn-' . $list[$state_id] : 'Not Defined';
+        return isset($list[$this->state_id]) ? 'btn btn-' . $list[$this->state_id] : 'Not Defined';
     }
     public function createdBy()
     {
@@ -231,7 +241,7 @@ class Order extends Model
         return [];
     }
 
-    
+
     public function comment()
     {
         return $this->hasOne(Comment::class, 'model_id')
@@ -290,12 +300,12 @@ class Order extends Model
     {
         $randomString = strtoupper(Str::random(4));
         $timestamp = Carbon::now()->timestamp;
-        $code = $randomString . $timestamp;
-        $existingCode = User::where('referral_id', $code)->exists();
+        $code = 'order_' .  $randomString . $timestamp;
+        $existingCode = Order::where('order_number', $code)->exists();
         if ($existingCode) {
             return $this->generateOrderNumber();
         }
-        return $this->order_id = 'order_admin_' . $code;
+        return $this->order_number = $code;
     }
 
     public static function getUniqueId($id)

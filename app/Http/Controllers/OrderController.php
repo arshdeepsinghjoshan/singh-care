@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use Illuminate\Http\Request;
 use App\Models\Department;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
@@ -135,15 +137,15 @@ class OrderController extends Controller
     {
         try {
             $id = $request->id;
-            $model  = Product::find($id);
+            $model  = Order::find($id);
             if ($model) {
 
                 return view('order.view', compact('model'));
             } else {
-                return redirect('/product')->with('error', 'Product not found');
+                return redirect('/order')->with('error', 'Product not found');
             }
         } catch (\Exception $e) {
-            return redirect('/product')->with('error', 'An error occurred: ' . $e->getMessage());
+            return redirect('/order')->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 
@@ -212,8 +214,8 @@ class OrderController extends Controller
             ->addColumn('title', function ($data) {
                 return !empty($data->title) ? (strlen($data->title) > 60 ? substr(ucfirst($data->title), 0, 60) . '...' : ucfirst($data->title)) : 'N/A';
             })
-            ->addColumn('price', function ($data) {
-                return number_format($data->price, 2);
+            ->addColumn('total_amount', function ($data) {
+                return number_format($data->total_amount, 2);
             })
             ->addColumn('status', function ($data) {
                 return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
@@ -223,23 +225,13 @@ class OrderController extends Controller
             ->addColumn('created_at', function ($data) {
                 return (empty($data->created_at)) ? 'N/A' : date('Y-m-d', strtotime($data->created_at));
             })
-            ->addColumn('expiry_date', function ($data) {
-                return (empty($data->expiry_date)) ? 'N/A' : date('Y-m-d', strtotime($data->expiry_date));
-            })
-            ->addColumn('bill_date', function ($data) {
-                return (empty($data->bill_date)) ? 'N/A' : date('Y-m-d', strtotime($data->bill_date));
-            })
-            ->addColumn('priority_id', function ($data) {
-                return $data->getPriority();
-            })
-
             ->addColumn('department_id', function ($data) {
                 return $data->getDepartment ?  $data->getDepartment->title : 'N/A';
             })
             ->addColumn('action', function ($data) {
                 $html = '<div class="table-actions text-center">';
                 // $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('support/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
-                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('product/view/' . $data->id) . '"  ><i class="fa fa-eye
+                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('order/view/' . $data->id) . '"  ><i class="fa fa-eye
                     "data-toggle="tooltip"  title="View"></i></a>';
                 $html .=  '</div>';
                 return $html;
@@ -324,47 +316,77 @@ class OrderController extends Controller
     }
 
     public function add(Request $request)
-{
-    try {
-        // Validation
-        if ($this->validator($request->all())->fails()) {
-            $message = $this->validator($request->all())->messages()->first();
-            return redirect()->back()->withInput()->with('error', $message);
-        }
+    {
+        try {
+            // Get the authenticated user ID
+            $userId = Auth::id();
 
-        // Initialize the images array
-        $all_images = [];
-        $ticket_images = $request->file('images');
+            // Fetch cart items for the authenticated user
+            $cartItems = Cart::where('created_by_id', $userId)->with('product')->get();
 
-        // Check if images were uploaded
-        if ($request->hasFile('images')) {
-            foreach ($ticket_images as $image) {
-                if ($image->isValid()) {
-                    $imageName = rand(1, 100000) . time() . '_' . $image->getClientOriginalName();
-                    $image->move(public_path('products'), $imageName);
-                    $all_images[] = $imageName;
-                }
+            if ($cartItems->isEmpty()) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => 'No items in the cart to place an order!',
+                ]);
             }
-        }
 
-        // Create a new product model
-        $model = new Product();
-        $model->fill($request->all());
-        $model->state_id = Product::STATE_ACTIVE;
-        $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
-        $model->created_by_id = Auth::user()->id;
+            // Calculate the total order price
+            $totalPrice = $cartItems->sum(function ($item) {
+                return $item->quantity * $item->unit_price;
+            });
 
-        // Save the model
-        if ($model->save()) {
-            return redirect('/product')->with('success', 'Product created successfully!');
-        } else {
-            return redirect('/product/create')->with('error', 'Unable to save the Product!');
+            // Create a new order
+            $order = new Order();
+            $order->created_by_id = $userId;
+            $order->user_id = $userId;
+            $order->total_amount = $totalPrice;
+            $order->generateOrderNumber();
+            if ($order->save()) {
+                // Associate cart items with the newly created order
+                foreach ($cartItems as $cartItem) {
+                    // dd($cartItem);
+                    $product = Product::find($cartItem->product_id);
+
+                    if (!$product) {
+                        return response()->json([
+                            'status' => 422,
+                            'message' => 'Product not found for cart item!',
+                        ]);
+                    }
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $cartItem->product_id,
+                        'product_json' => json_encode($product),
+                        'quantity' => $cartItem->quantity,
+                        'total_amount' => $cartItem->total_price,
+                        'unit_amount' => $cartItem->unit_price,
+                        'created_by_id' => $userId,
+                    ]);
+                }
+
+                // Clear the user's cart
+                Cart::where('created_by_id', $userId)->delete();
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Order placed successfully!',
+                    'order_id' => $order->id,
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 422,
+                    'message' => 'Something went wrong while placing the order!',
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ]);
         }
-    } catch (\Exception $e) {
-        $bug = $e->getMessage();
-        return redirect()->back()->withInput()->with('error', $bug);
     }
-}
+
 
 
 

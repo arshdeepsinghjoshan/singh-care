@@ -13,7 +13,7 @@ use App\Models\User;
           'url' => 'order',
             'label' => 'Orders',
         ],
-        $model->name,
+        $model->order_number,
     ]" />
 
 <div class="container-xxl flex-grow-1 container-p-y">
@@ -21,14 +21,14 @@ use App\Models\User;
         <div class="col-lg-12 mb-4 order-0">
             <div class="card">
                 <div class="card-body">
-                    <h5>{{ !empty($model->name) ? (strlen($model->name) > 100 ? substr($model->name, 0, 100) . '...' : $model->name) : 'N/A' }}
-                        <span class="{{ $model->getStateBadgeOption() }}">{{ $model->getState() }}</span>
+                    <h5>{{ !empty($model->order_number) ? (strlen($model->order_number) > 100 ? substr($model->order_number, 0, 100) . '...' : $model->order_number) : 'N/A' }}
+                        {{-- <span class="{{ $model->getStateBadgeOption() }}">{{ $model->getState() }}</span> --}}
                     </h5>
 
                     <x-a-detail-view :model="$model" :column="
     [
     'id',
-      'name',
+      'order_number',
       [
         'attribute' => 'updated_at',
         'label' => 'Updated at',
@@ -53,7 +53,6 @@ use App\Models\User;
     </div>
 
 
-    <x-a-user-action :model="$model" attribute="state_id" :states="$model->getStateOptions()" />
 
 
 

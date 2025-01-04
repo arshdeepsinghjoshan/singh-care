@@ -288,8 +288,11 @@ class CartController extends Controller
             $query = Cart::with('product')->orderBy('id', 'desc');
         }
 
-        if (!empty($id))
-            $query->where('id', $id);
+        if (!empty($id)){
+            $model =$query->first();
+            if($model)
+            $query->where('product_id', $model->product_id);
+        }
 
 
         return Datatables::of($query)
@@ -324,6 +327,13 @@ class CartController extends Controller
             ->addColumn('price', function ($data) {
                 return number_format($data->price, 2);
             })
+            ->addColumn('total_price', function ($data) {
+                return number_format($data->total_price, 2);
+            })
+            ->addColumn('unit_price', function ($data) {
+                return number_format($data->unit_price, 2);
+            })
+            
             ->addColumn('total_checkout_amount', function ($data) {
                 return number_format($data->getTotalPriceSum(), 2);
             })

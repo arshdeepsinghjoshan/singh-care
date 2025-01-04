@@ -1,4 +1,3 @@
-<link rel="stylesheet" href="{{ asset('/assets/css/datatables.min.css') }}">
 <!-- <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.css" /> -->
 <table id="{{ $id }}" class="table">
     <thead>
@@ -26,74 +25,78 @@
     </tbody>
 </table>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-<script src="{{ asset('/assets/js/datatables.min.js') }}"></script>
 
 <script>
     (function($) {
         'use strict';
-            // Ensure $id is valid before using it in a jQuery selector
-            var tableId = '{{ $id }}';
-            if (tableId) { // Added check to ensure tableId is not empty
-                var table = $('#' + tableId).DataTable({
-                    order: [],
-                    lengthMenu: [
-                        [10, 25, 50, 100, 500],
-                        [10, 25, 50, 100, 500]
-                    ],
-                    processing: true,
-                    serverSide: true,
-                    autoWidth: false,
-                    dom: "<'row'<'col-sm-2'l><'col-sm-7 text-center'B><'col-sm-3'f>>tipr",
-                    language: {
-                        processing: '<div class="spinner-border" style="width: 50px; height: 50px;" role="status"><span class="visually-hidden">Loading...</span></div>'
-                    },
-                    ajax: {
-                        url: "{{ $url }}",
-                        type: "GET",
-                        data: function(d) {
-                            @foreach ($customfilterIds as $customfilterId)
-                                var filterId = '{{ $customfilterId }}';
-                                if (filterId && $('#' + filterId)
-                                    .length) { // Check if filterId element exists
-                                    d[filterId] = $('#' + filterId).val();
-                                }
-                            @endforeach
-                        },
-                        error: function(xhr, error, thrown) {
-                            console.log('Error details:', xhr.responseText);
-                            alert(
-                                'An error occurred while loading the data. Please check the console for more details.');
-                        }
-                    },
-                    columns: [
-                        @foreach ($columns as $column)
-                            {
-                                @if (is_array($column))
-                                    data: '{{ $column['attribute'] ?? '' }}',
-                                    name: '{{ $column['attribute'] ?? '' }}'
-                                @else
-                                    data: '{{ $column }}',
-                                    name: '{{ $column }}'
-                                @endif
-                            },
+        // Ensure $id is valid before using it in a jQuery selector
+        var tableId = '{{ $id }}';
+        var searching = '{{ $searching }}';
+        var paging = '{{ $paging }}';
+        var info = '{{ $info }}';
+        if (tableId) { // Added check to ensure tableId is not empty
+            var table = $('#' + tableId).DataTable({
+                order: [],
+                lengthMenu: [
+                    [10, 25, 50, 100, 500],
+                    [10, 25, 50, 100, 500]
+                ],
+                processing: true,
+                serverSide: true,
+                autoWidth: false,
+                searching: searching, // Disable search
+                info: info, // Disable search
+                paging: paging,
+                dom: "<'row'<'col-sm-2'l><'col-sm-7 text-center'B><'col-sm-3'f>>tipr",
+                language: {
+                    processing: '<div class="spinner-border" style="width: 50px; height: 50px;" role="status"><span class="visually-hidden">Loading...</span></div>'
+                },
+                ajax: {
+                    url: "{{ $url }}",
+                    type: "GET",
+                    data: function(d) {
+                        @foreach ($customfilterIds as $customfilterId)
+                            var filterId = '{{ $customfilterId }}';
+                            if (filterId && $('#' + filterId)
+                                .length) { // Check if filterId element exists
+                                d[filterId] = $('#' + filterId).val();
+                            }
                         @endforeach
-                    ],
-                    buttons: [
-                        @foreach ($buttons as $button)
-                            @if (is_array($button))
-                                {
-                                    @foreach ($button as $key => $value)
-                                        '{{ $key }}': '{{ $value }}',
-                                    @endforeach
-                                },
+                    },
+                    error: function(xhr, error, thrown) {
+                        console.log('Error details:', xhr.responseText);
+                        alert(
+                            'An error occurred while loading the data. Please check the console for more details.'
+                        );
+                    }
+                },
+                columns: [
+                    @foreach ($columns as $column)
+                        {
+                            @if (is_array($column))
+                                data: '{{ $column['attribute'] ?? '' }}',
+                                name: '{{ $column['attribute'] ?? '' }}'
                             @else
-                                '{{ $button }}',
+                                data: '{{ $column }}',
+                                name: '{{ $column }}'
                             @endif
-                        @endforeach
-                    ]
-                });
+                        },
+                    @endforeach
+                ],
+                buttons: [
+                    @foreach ($buttons as $button)
+                        @if (is_array($button))
+                            {
+                                @foreach ($button as $key => $value)
+                                    '{{ $key }}': '{{ $value }}',
+                                @endforeach
+                            },
+                        @else
+                            '{{ $button }}',
+                        @endif
+                    @endforeach
+                ]
+            });
 
 
 
@@ -116,18 +119,25 @@
                 tableReload()
             });
         }
-        if (tableId == 'cart_list') {
+        if (tableId == 'cart_list' || tableId == 'cart_checkout') {
             $(document).on('click', '.changeQuantity', function(e) {
-                // Prevent default action (if needed)
-                e.preventDefault();
-                // `this` refers to the button that was clicked
-                var product = JSON.parse(this.getAttribute("data-product"));
-                var product_id = product?.product?.id || 0;
-                var type_id = this.getAttribute("data-type");
-                // Call your function with the appropriate arguments
-                setQuantity(product_id, type_id);
+
+
+                if (tableId == 'cart_list') {
+                    // Prevent default action (if needed)
+                    e.preventDefault();
+                    // `this` refers to the button that was clicked
+                    var product = JSON.parse(this.getAttribute("data-product"));
+                    var product_id = product?.product?.id || 0;
+                    var type_id = this.getAttribute("data-type");
+                    // Call your function with the appropriate arguments
+                    setQuantity(product_id, type_id);
+                }
+                tableReload()
+
             });
         }
+
         $(document).on('click', '.select-product', function(e) {
             $.ajaxSetup({
                 headers: {
@@ -163,6 +173,36 @@
                 }
             });
         });
+
+
+        $(document).on('click', '#placeOrder', function(e) {
+            if (tableId == 'cart_checkout') {
+
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: "/order/add",
+                    type: 'POST',
+
+                    success: function(res) {
+                        if (res.status == 200) {
+                            handleResponse(res);
+                        }
+                        if (res.status == 422) {
+                            handleResponse(res);
+                        }
+
+                    }
+                });
+            }
+
+                        tableReload()
+
+        });
+
         async function setQuantity(product_id, type_id) {
             $.ajaxSetup({
                 headers: {
@@ -179,11 +219,9 @@
                 },
                 success: function(res) {
                     if (res.status == 200) {
-                        table.ajax.reload();
                         handleResponse(res);
                     }
                     if (res.status == 422) {
-                        table.ajax.reload();
                         handleResponse(res);
                     }
                 }

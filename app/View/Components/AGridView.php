@@ -18,13 +18,14 @@ class AGridView extends Component
     public $title;
     public $buttons;
     public $model;
-
+    public $searching;
+    public $paging;
+    public $info;
     public $filterButtonId;
-
     public $customfilterIds;
 
 
-    public function __construct($url, $columns, $id, $model = '', $title = null, $buttons = [], $filterButtonId = null, $customfilterIds = [])
+    public function __construct($url, $columns, $id, $model = '', $title = null, $buttons = [], $filterButtonId = null, $customfilterIds = [], $paging = true, $searching = true ,$info = true)
     {
         $this->url = url($url);
         $this->columns = $columns;
@@ -33,7 +34,10 @@ class AGridView extends Component
         $this->buttons = $buttons;
         $this->title = $title ?? 'User';
         $this->filterButtonId = $filterButtonId;
+        $this->searching = $searching;
+        $this->paging = $paging;
         $this->customfilterIds = $customfilterIds;
+        $this->info = $info;
     }
 
     /**
