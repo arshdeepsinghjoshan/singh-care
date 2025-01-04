@@ -112,7 +112,7 @@ class Comment extends Model
             case 'index':
                 $menu['add'] = [
                     'label' => 'fa fa-plus',
-                    'color' => 'btn btn-icon btn-success',
+                    'color' => 'btn btn-icon btn-primary',
                     'title' => __('Add'),
                     'url' => url('kyc/create'),
                     'visible' => false

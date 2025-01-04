@@ -269,7 +269,7 @@ class Cart extends Model
             case 'view':
                 $menu['manage'] = [
                     'label' => 'fa fa-step-backward',
-                    'color' => 'btn btn-warning',
+                    'color' => 'btn btn-primary',
                     'title' => __('Order'),
                     'url' => url('/order'),
 
@@ -277,7 +277,7 @@ class Cart extends Model
 
                 $menu['download'] = [
                     'label' => 'fa fa-download',
-                    'color' => 'btn btn-warning',
+                    'color' => 'btn btn-primary',
                     'title' => __('Invoice download'),
                     'url' => url('/order/download/' . $model->id),
 
@@ -286,7 +286,7 @@ class Cart extends Model
             case 'index':
                 $menu['add'] = [
                     'label' => 'fa fa-plus',
-                    'color' => 'btn btn-success',
+                    'color' => 'btn btn-primary',
                     'title' => __('Create new Sale'),
                     'url' => url('/order/create'),
                     'text' => false,

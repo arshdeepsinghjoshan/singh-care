@@ -82,7 +82,7 @@ class ProductCategory extends Model
             case 'view':
                 $menu['manage'] = [
                     'label' => 'fa fa-step-backward',
-                    'color' => 'btn btn-warning',
+                    'color' => 'btn btn-primary',
                     'title' => __('Manage'),
                     'url' => url('product/category'),
                     'visible' => true
@@ -99,7 +99,7 @@ class ProductCategory extends Model
             case 'index':
                 $menu['add'] = [
                     'label' => 'fa fa-plus',
-                    'color' => 'btn btn-icon btn-success',
+                    'color' => 'btn btn-icon btn-primary',
                     'title' => __('Add'),
                     'url' => url('product/category/create'),
                     'visible' => false

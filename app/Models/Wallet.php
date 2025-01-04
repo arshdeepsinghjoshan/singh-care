@@ -114,7 +114,7 @@ class Wallet extends Model
             case 'index':
                 $menu['add'] = [
                     'label' => 'fa fa-plus',
-                    'color' => 'btn btn-icon btn-success',
+                    'color' => 'btn btn-icon btn-primary',
                     'title' => __('Add'),
                     'url' => url('wallet/create'),
                     'visible' => false

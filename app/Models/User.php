@@ -317,7 +317,7 @@ class User extends Authenticatable
             case 'index':
                 $menu['add'] = [
                     'label' => 'fa fa-plus',
-                    'color' => 'btn btn-icon btn-success',
+                    'color' => 'btn btn-icon btn-primary',
                     'title' => __('Add'),
                     'url' => url('user/create'),
                     'visible' => true

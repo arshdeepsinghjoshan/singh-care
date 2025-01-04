@@ -81,7 +81,7 @@ class SupportDepartment extends Model
             case 'view':
                 $menu['manage'] = [
                     'label' => 'fa fa-step-backward',
-                    'color' => 'btn btn-warning',
+                    'color' => 'btn btn-primary',
                     'title' => __('Manage'),
                     'url' => url('support/department'),
                     'visible' => true
@@ -98,7 +98,7 @@ class SupportDepartment extends Model
             case 'index':
                 $menu['add'] = [
                     'label' => 'fa fa-plus',
-                    'color' => 'btn btn-icon btn-success',
+                    'color' => 'btn btn-icon btn-primary',
                     'title' => __('Add'),
                     'url' => url('support/department/create'),
                     'visible' => false

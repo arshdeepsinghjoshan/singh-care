@@ -51,7 +51,7 @@ use Modules\Notification\Http\Models\Notification;
                         <div class="mb-2">
 
                             <div class="text-right mb-2">
-                                <a class="btn btn-warning " href="{{ url('/notification')}}"><i class="ri-arrow-go-back-fill"></i></a>
+                                <a class="btn btn-primary " href="{{ url('/notification')}}"><i class="ri-arrow-go-back-fill"></i></a>
                                 <a class="btn btn-danger custom-delete" href="{{ url('notification/delete/'.$notification->id)}}"><i class="ri-delete-bin-5-fill" data-toggle="tooltip" title="Delete"></i></a>
                             </div>
                         </div>

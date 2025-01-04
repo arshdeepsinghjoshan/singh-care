@@ -51,7 +51,7 @@ $segment2 = request()->segment(2);
 
         @if (User::isAdmin())
         <!--Wallet Managment -->
-        <li class="menu-item {{ $segment1 != 'wallet' ? '' : 'active open' }}">
+        {{-- <li class="menu-item {{ $segment1 != 'wallet' ? '' : 'active open' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-dock-top"></i>
                 <div data-i18n="Wallet Management">Wallet Management</div>
@@ -71,7 +71,7 @@ $segment2 = request()->segment(2);
                     </a>
                 </li>
             </ul>
-        </li>
+        </li> --}}
         <!--End Wallet Managment -->
 
 
@@ -118,7 +118,7 @@ $segment2 = request()->segment(2);
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Order Management</span></li>
         @if (User::isAdmin())
         <!-- Order Managment -->
-        <li class="menu-item {{ $segment1 == 'order' && $segment2 == 'category' ? 'active' : '' }}">
+        <li class="menu-item {{ $segment1 == 'order' && $segment2 != 'category' ? 'active' : '' }}">
             <a href="{{ url('order') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-collection"></i>
                 <div data-i18n="Basic">Orders</div>

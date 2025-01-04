@@ -119,7 +119,7 @@ class SmtpEmailQueue extends Model
             case 'index':
                 $menu['add'] = [
                     'label' => 'fa fa-plus',
-                    'color' => 'btn btn-icon btn-success',
+                    'color' => 'btn btn-icon btn-primary',
                     'title' => __('Add'),
                     'url' => url('email-queue/create'),
                     'visible' => false

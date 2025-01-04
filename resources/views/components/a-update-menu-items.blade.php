@@ -9,7 +9,7 @@
 
         @endphp
         @if(isset($menu) && $value)
-        <a class="{{isset($menu['color']) ? $menu['color'] : 'btn btn-warning'}} " href="{{isset($menu['url']) ? $menu['url'] : ''}}">
+        <a class="{{isset($menu['color']) ? $menu['color'] : 'btn btn-primary'}} " href="{{isset($menu['url']) ? $menu['url'] : ''}}">
             <i class="{{isset($menu['label']) ? $menu['label'] : ''}}" data-toggle="tooltip" title="{{ isset($menu['title']) ? $menu['title'] : ''}}"></i>
              @if(isset($menu['text']) && $menu['text'] )  <span style="color: @if(isset($menu['textColor']) ){{$menu['textColor'] }}  @endif ;">{{$menu['title']}}</span> @endif
         </a>

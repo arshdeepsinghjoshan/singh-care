@@ -127,7 +127,7 @@ class Support extends Model
             case 'view':
                 $menu['manage'] = [
                     'label' => 'fa fa-step-backward',
-                    'color' => 'btn btn-warning',
+                    'color' => 'btn btn-primary',
                     'title' => __('Manage'),
                     'url' => url('support'),
 
@@ -136,7 +136,7 @@ class Support extends Model
             case 'index':
                 $menu['add'] = [
                     'label' => 'fa fa-plus',
-                    'color' => 'btn btn-success',
+                    'color' => 'btn btn-primary',
                     'title' => __('Add'),
                     'url' => url('support/create'),
                     'visible' => User::isUser()

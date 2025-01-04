@@ -126,6 +126,7 @@
                 if (tableId == 'cart_list') {
                     // Prevent default action (if needed)
                     e.preventDefault();
+
                     // `this` refers to the button that was clicked
                     var product = JSON.parse(this.getAttribute("data-product"));
                     var product_id = product?.product?.id || 0;
@@ -147,35 +148,43 @@
             e.preventDefault();
             const productId = $(this).data('product_id'); // Get the product ID from the data attribute
             const isChecked = $(this).is(':checked')
+            this.disabled = true;
             let type_id = ''; // Declared as const
             if (isChecked) {
                 type_id = '1'; // Trying to reassign a const variable
             } else {
                 type_id = '0'; // Trying to reassign a const variable
             }
+            if (tableId == 'order_product_table') {
 
 
-            $.ajax({
-                url: '/cart/add', // Replace with your API endpoint
-                method: 'POST',
-                data: {
-                    product_id: productId,
-                    type_id: type_id
-                },
-                success: function(response) {
-                    tableReload()
+                $.ajax({
+                    url: '/cart/add', // Replace with your API endpoint
+                    method: 'POST',
+                    data: {
+                        product_id: productId,
+                        type_id: type_id
+                    },
+                    success: function(response) {
 
-                },
-                error: function(xhr) {
-                    handleResponse(response);
-                    tableReload()
+                        handleResponse(response);
+                    },
+                    error: function(xhr) {
+                        handleResponse(response);
 
-                }
-            });
+                    }
+                });
+            }
+
+
+            tableReload()
+
         });
 
 
         $(document).on('click', '#placeOrder', function(e) {
+
+            this.disabled = true;
             if (tableId == 'cart_checkout') {
 
                 $.ajaxSetup({
@@ -189,9 +198,15 @@
 
                     success: function(res) {
                         if (res.status == 200) {
+                           $('#placeOrder').prop('disabled', false);
+
                             handleResponse(res);
                         }
                         if (res.status == 422) {
+                           $('#placeOrder').prop('disabled', false);
+
+
+
                             handleResponse(res);
                         }
 
@@ -199,7 +214,7 @@
                 });
             }
 
-                        tableReload()
+            tableReload()
 
         });
 

@@ -113,7 +113,7 @@ class Product extends Model
             case 'view':
                 $menu['manage'] = [
                     'label' => 'fa fa-step-backward',
-                    'color' => 'btn btn-warning',
+                    'color' => 'btn btn-primary',
                     'title' => __('Manage'),
                     'url' => url('product'),
 
@@ -122,14 +122,14 @@ class Product extends Model
             case 'index':
                 $menu['add'] = [
                     'label' => 'fa fa-plus',
-                    'color' => 'btn btn-success',
+                    'color' => 'btn btn-primary',
                     'title' => __('Add'),
                     'url' => url('product/create'),
                     'visible' => User::isAdmin()
                 ];
                 $menu['import'] = [
                     'label' => 'fas fa-file-import',
-                    'color' => 'btn btn-success',
+                    'color' => 'btn btn-primary',
                     'title' => __('File Import'),
                     'url' => url('product/import'),
                     'visible' => false
