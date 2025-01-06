@@ -55,12 +55,12 @@
                     url: "{{ $url }}",
                     type: "GET",
                     data: function(d) {
-                        @foreach($customfilterIds as $customfilterId)
-                        var filterId = '{{ $customfilterId }}';
-                        if (filterId && $('#' + filterId)
-                            .length) { // Check if filterId element exists
-                            d[filterId] = $('#' + filterId).val();
-                        }
+                        @foreach ($customfilterIds as $customfilterId)
+                            var filterId = '{{ $customfilterId }}';
+                            if (filterId && $('#' + filterId)
+                                .length) { // Check if filterId element exists
+                                d[filterId] = $('#' + filterId).val();
+                            }
                         @endforeach
                     },
                     error: function(xhr, error, thrown) {
@@ -71,30 +71,29 @@
                     }
                 },
                 columns: [
-                    @foreach($columns as $column) {
-                        @if(is_array($column))
-                        data: '{{ $column['
-                        attribute '] ?? '
-                        ' }}',
-                        name: '{{ $column['
-                        attribute '] ?? '
-                        ' }}'
-                        @else
-                        data: '{{ $column }}',
-                            name: '{{ $column }}'
-                        @endif
-                    },
+                    @foreach ($columns as $column)
+                        {
+                            @if (is_array($column))
+                                data: '{{ $column['attribute'] ?? '' }}',
+                                name: '{{ $column['attribute'] ?? '' }}'
+                            @else
+                                data: '{{ $column }}',
+                                name: '{{ $column }}'
+                            @endif
+                        },
                     @endforeach
                 ],
                 buttons: [
-                    @foreach($buttons as $button)
-                    @if(is_array($button)) {
-                        @foreach($button as $key => $value)
-                        '{{ $key }}': '{{ $value }}',
-                        @endforeach
-                    },
-                    @else '{{ $button }}',
-                    @endif
+                    @foreach ($buttons as $button)
+                        @if (is_array($button))
+                            {
+                                @foreach ($button as $key => $value)
+                                    '{{ $key }}': '{{ $value }}',
+                                @endforeach
+                            },
+                        @else
+                            '{{ $button }}',
+                        @endif
                     @endforeach
                 ]
             });
@@ -109,6 +108,7 @@
                 });
             }
         }
+
 
         function tableReload() {
             table.ajax.reload();
