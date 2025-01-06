@@ -4,16 +4,21 @@
 
 use App\Models\User;
 ?>
+
+@php
+ $productModelJson = json_decode($model->product_json);
+
+@endphp
 <x-a-breadcrumb :columns="[
         [
             'url' => '/',
             'label' => 'Home',
         ],
         [
-             'url' => 'product',
-            'label' => 'Product',
+             'url' => 'order',
+            'label' => 'Orders',
         ],
-        !empty($model->name) ? (strlen($model->name) > 100 ? substr($model->name, 0, 100) . '...' : $model->name) : 'N/A'
+        !empty($productModelJson && $productModelJson->name) ? (strlen($productModelJson->name) > 100 ? substr($productModelJson->name, 0, 100) . '...' : $productModelJson->name) : 'N/A'
     ]" />
 
 <div class="container-xxl flex-grow-1 container-p-y">
@@ -21,7 +26,7 @@ use App\Models\User;
         <div class="col-lg-12 mb-4 order-0">
             <div class="card">
                 <div class="card-body">
-                    <h5>{{ !empty($model->name) ? (strlen($model->name) > 100 ? substr($model->name, 0, 100) . '...' : $model->name) : 'N/A' }}
+                    <h5>{{ !empty($productModelJson && $productModelJson->name) ? (strlen($productModelJson->name) > 100 ? substr($productModelJson->name, 0, 100) . '...' : $productModelJson->name) : 'N/A' }}
                         <span class="{{ $model->getStateBadgeOption() }}">{{ $model->getState() }}</span>
                     </h5>
 
@@ -57,12 +62,7 @@ use App\Models\User;
     ]
     " />
     <p class="mt-3">
-@php
- $productModelJson = json_decode($model->product_json);
 
- echo !empty($productModelJson && $productModelJson->name) ? $productModelJson->name : 'N/A';
-
-@endphp
 
     </p>
                 </div>
@@ -158,7 +158,6 @@ use App\Models\User;
         }
     </script>
 
-    <x-a-user-action :model="$model" attribute="state_id" :states="$model->getStateOptions()" />
 
 
 </div>

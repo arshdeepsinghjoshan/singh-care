@@ -231,7 +231,7 @@ use App\Models\User;
         var totalSales = data.reduce((acc, cur) => acc + cur.totalSales, 0);
         var pieData = data.map(item => ({
             name: item.date,
-            y: (item.totalSales / totalSales) * 100
+            y: item.totalSales
         }));
 
         Highcharts.chart('salesPieChart', {
