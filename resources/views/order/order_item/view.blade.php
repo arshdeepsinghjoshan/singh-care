@@ -28,26 +28,15 @@ use App\Models\User;
                     <x-a-detail-view :model="$model" :type="'double'" :column="
     [
         'id',
-      'name',
-      'product_code',
-      'hsn_code',
-      'batch_no',
-      'agency_name',
-      'description',
-      'price',
-      'distribution_price',
-      'salt',
-      'tax_id',
+        'quantity',
      
-     [
-        'attribute' => 'bill_date',
-        'label' => 'Bill Date',
-        'value' => (empty($model->bill_date)) ? 'N/A' : date('Y-m-d h:i:s A', strtotime($model->bill_date)),
+    [
+        'attribute'=> 'total_amount',
+        'value'=>number_format($model->unit_amount, 2)
      ],
      [
-        'attribute' => 'expiry_date',
-        'label' => 'Expiry Date',
-        'value' => (empty($model->expiry_date)) ? 'N/A' : date('Y-m-d h:i:s A', strtotime($model->expiry_date)),
+        'attribute'=> 'unit_amount',
+        'value'=>number_format($model->unit_amount, 2)
      ],
      [
         'attribute' => 'created_at',
@@ -67,6 +56,15 @@ use App\Models\User;
     
     ]
     " />
+    <p class="mt-3">
+@php
+ $productModelJson = json_decode($model->product_json);
+
+ echo !empty($productModelJson && $productModelJson->name) ? $productModelJson->name : 'N/A';
+
+@endphp
+
+    </p>
                 </div>
             </div>
             @if($model->images && count(json_decode($model->images)) > 0)

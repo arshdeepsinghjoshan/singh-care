@@ -55,15 +55,16 @@
                                  'name',
                                  'price',
                                 [
-                                 'attribute'=> 'description',
-                                 'label'=>'Desc'
+                                 'attribute'=> 'total_amount',
+                                 'label'=>'total_amount',
+                                 'value'=>number_format($model->unit_amount, 2)
                                 ],
                                 [
-                                 'attribute'=> 'hsn_code',
+                                 'attribute'=> 'unit_amount',
                                  'label'=>'HSN'
                                 ],
                                 [
-                                 'attribute'=> 'batch_no',
+                                 'attribute'=> 'total_discount',
                                  'label'=>'Batch'
                                 ],
                                 [

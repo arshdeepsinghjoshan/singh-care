@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SiteController;
@@ -149,9 +150,15 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::post('order/add', [OrderController::class, 'add'])->name('order.add');
         Route::get('/order/get-list', [OrderController::class, 'getList']);
         Route::get('/order/edit/{id}', [OrderController::class, 'edit']);
+        Route::get('/order/download/{id}', [OrderController::class, 'orderInvoice']);
+
         Route::get('/order/view/{id}', [OrderController::class, 'view']);
         Route::post('order/update', [OrderController::class, 'update'])->name('order.update');
 
+        Route::get('order/item', [OrderItemController::class, 'index']);
+        Route::get('order/item/create', [OrderItemController::class, 'create']);
+        Route::get('/order/item/get-list', [OrderItemController::class, 'getList']);
+        Route::get('/order/item/view/{id}', [OrderItemController::class, 'view']);
 
 
         Route::get('cart', [CartController::class, 'index']);
@@ -163,6 +170,5 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/cart/edit/{id}', [CartController::class, 'edit']);
         Route::get('/cart/view/{id}', [CartController::class, 'view']);
         Route::post('cart/update', [CartController::class, 'update'])->name('cart.update');
-
     });
 });

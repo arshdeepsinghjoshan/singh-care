@@ -41,7 +41,6 @@ class Controller extends BaseController
         // Retrieve the relation and model instance
         $relation = $request->relation;
         $modelInstance = $request->modelType::find($request->modelId);
-
         // Check if the model instance exists
         if (!$modelInstance) {
             return response()->json(['error' => 'Model not found'], 404);

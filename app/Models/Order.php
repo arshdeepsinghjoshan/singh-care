@@ -227,6 +227,10 @@ class Order extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class,'order_id');
+    }
     public function getCreatedAt()
     {
         return (empty($this->created_at)) ? 'N/A' : date('Y-m-d h:i:s A', strtotime($this->created_at));

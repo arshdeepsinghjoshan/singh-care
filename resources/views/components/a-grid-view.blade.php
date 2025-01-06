@@ -3,21 +3,21 @@
     <thead>
         <tr>
             @foreach ($columns as $column)
-                <th>
-                    @if (method_exists($model, 'attributeLabels'))
-                        {{ $model->attributeLabels($column) }}
-                    @else
-                        @if (is_array($column))
-                            @if (isset($column['label']))
-                                {{ $column['label'] }}
-                            @else
-                                {{ ucwords(str_replace('_', ' ', $column['attribute'])) }}
-                            @endif
-                        @else
-                            {{ ucwords(str_replace('_', ' ', $column)) }}
-                        @endif
-                    @endif
-                </th>
+            <th>
+                @if (method_exists($model, 'attributeLabels'))
+                {{ $model->attributeLabels($column) }}
+                @else
+                @if (is_array($column))
+                @if (isset($column['label']))
+                {{ $column['label'] }}
+                @else
+                {{ ucwords(str_replace('_', ' ', $column['attribute'])) }}
+                @endif
+                @else
+                {{ ucwords(str_replace('_', ' ', $column)) }}
+                @endif
+                @endif
+            </th>
             @endforeach
         </tr>
     </thead>
@@ -55,12 +55,12 @@
                     url: "{{ $url }}",
                     type: "GET",
                     data: function(d) {
-                        @foreach ($customfilterIds as $customfilterId)
-                            var filterId = '{{ $customfilterId }}';
-                            if (filterId && $('#' + filterId)
-                                .length) { // Check if filterId element exists
-                                d[filterId] = $('#' + filterId).val();
-                            }
+                        @foreach($customfilterIds as $customfilterId)
+                        var filterId = '{{ $customfilterId }}';
+                        if (filterId && $('#' + filterId)
+                            .length) { // Check if filterId element exists
+                            d[filterId] = $('#' + filterId).val();
+                        }
                         @endforeach
                     },
                     error: function(xhr, error, thrown) {
@@ -71,29 +71,30 @@
                     }
                 },
                 columns: [
-                    @foreach ($columns as $column)
-                        {
-                            @if (is_array($column))
-                                data: '{{ $column['attribute'] ?? '' }}',
-                                name: '{{ $column['attribute'] ?? '' }}'
-                            @else
-                                data: '{{ $column }}',
-                                name: '{{ $column }}'
-                            @endif
-                        },
+                    @foreach($columns as $column) {
+                        @if(is_array($column))
+                        data: '{{ $column['
+                        attribute '] ?? '
+                        ' }}',
+                        name: '{{ $column['
+                        attribute '] ?? '
+                        ' }}'
+                        @else
+                        data: '{{ $column }}',
+                            name: '{{ $column }}'
+                        @endif
+                    },
                     @endforeach
                 ],
                 buttons: [
-                    @foreach ($buttons as $button)
-                        @if (is_array($button))
-                            {
-                                @foreach ($button as $key => $value)
-                                    '{{ $key }}': '{{ $value }}',
-                                @endforeach
-                            },
-                        @else
-                            '{{ $button }}',
-                        @endif
+                    @foreach($buttons as $button)
+                    @if(is_array($button)) {
+                        @foreach($button as $key => $value)
+                        '{{ $key }}': '{{ $value }}',
+                        @endforeach
+                    },
+                    @else '{{ $button }}',
+                    @endif
                     @endforeach
                 ]
             });
@@ -119,6 +120,47 @@
                 tableReload()
             });
         }
+
+        $(document).on('click', '#placeOrder', function(e) {
+
+            // this.disabled = true;
+            e.preventDefault();
+
+            if (tableId == 'cart_checkout') {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: "/order/add",
+                    type: 'POST',
+                    success: function(res) {
+                        if (res.status == 200) {
+                            $('#placeOrder').prop('disabled', false);
+                            handleResponse(res);
+                            let table = $('#order_product_table').DataTable(); // Get the DataTable instance
+                            table.ajax.reload();
+                            let cart_list = $('#cart_list').DataTable(); // Get the DataTable instance
+                            cart_list.ajax.reload();
+                            tableReload()
+
+
+                        }
+                        if (res.status == 422) {
+                            $('#placeOrder').prop('disabled', false);
+                            handleResponse(res);
+                            tableReload()
+
+                        }
+
+                    }
+                });
+            }
+
+
+        });
+
         if (tableId == 'cart_list' || tableId == 'cart_checkout') {
             $(document).on('click', '.changeQuantity', function(e) {
 
@@ -182,41 +224,6 @@
         });
 
 
-        $(document).on('click', '#placeOrder', function(e) {
-
-            this.disabled = true;
-            if (tableId == 'cart_checkout') {
-
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-                $.ajax({
-                    url: "/order/add",
-                    type: 'POST',
-
-                    success: function(res) {
-                        if (res.status == 200) {
-                           $('#placeOrder').prop('disabled', false);
-
-                            handleResponse(res);
-                        }
-                        if (res.status == 422) {
-                           $('#placeOrder').prop('disabled', false);
-
-
-
-                            handleResponse(res);
-                        }
-
-                    }
-                });
-            }
-
-            tableReload()
-
-        });
 
         async function setQuantity(product_id, type_id) {
             $.ajaxSetup({

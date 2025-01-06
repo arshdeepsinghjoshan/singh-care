@@ -1,4 +1,6 @@
 @extends('layouts.master')
+@section('title', $model->order_number ?? 'Order View')
+
 @section('content')
 <?php
 
@@ -29,6 +31,11 @@ use App\Models\User;
     [
     'id',
       'order_number',
+         [
+        'attribute' => 'total_amount',
+        'value' =>  number_format($model->total_amount, 2),
+        'visible'=> true   
+     ],
       [
         'attribute' => 'updated_at',
         'label' => 'Updated at',
@@ -52,10 +59,52 @@ use App\Models\User;
         </div>
     </div>
 
+    <div class="row mt-4">
 
+<div class="col-xl-12">
+    <div class="nav-align-top ">
+        <ul class="nav nav-tabs nav-fill" role="tablist">
+
+            <li class="nav-item">
+                <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-wallet" aria-controls="navs-justified-messages" aria-selected="false">
+                    <i class="tf-icons bx bx-message-square"></i> Order Items
+                </button>
+            </li>
+          
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane show active" id="navs-justified-wallet" role="tabpanel">
+                <div class="table-responsive">
+
+
+
+                    <x-a-relation-grid :id="'order_item_table'" :relation="'items'" :model="$model" :columns="[
+                                'id',
+                                'product_name',
+                                'total_amount',
+                                'quantity',
+                                'status',
+                                'created_at',
+                                'created_by',
+                                'action',
+                            ]" />
+
+
+
+                </div>
+            </div>
+
+
+           
+
+        </div>
+    </div>
+</div>
+</div>
 
 
 
 
 </div>
+   
 @endsection

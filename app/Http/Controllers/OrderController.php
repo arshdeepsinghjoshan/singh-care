@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use DataTables;
 use Illuminate\Validation\Rule;
-
+use PDF;
 class OrderController extends Controller
 {
     public $setFilteredRecords = 0;
@@ -101,6 +101,22 @@ class OrderController extends Controller
     }
 
 
+    public function orderInvoice($id)
+    {
+        // try {
+
+            $data = Order::where('id', $id)->first();
+            // $this->checkOwner($data, 'user_id');
+            if ($data) {
+                $pdf = PDf::loadView('invoice.order', compact('data'));
+                return $pdf->stream('sas.pdf');
+            } else {
+                return redirect('404');
+            }
+        // } catch (\Exception $e) {
+        //     return redirect()->back()->with('error', 'An error occurred while generating the invoice. ' . $e->getMessage());
+        // }
+    }
     public function edit(Request $request)
     {
         try {
