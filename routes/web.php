@@ -151,6 +151,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/order/get-list', [OrderController::class, 'getList']);
         Route::get('/order/edit/{id}', [OrderController::class, 'edit']);
         Route::get('/order/download/{id}', [OrderController::class, 'orderInvoice']);
+        Route::get('/order/totat-sale', [OrderController::class, 'getSalesData'])->name('order.totatSale');
 
         Route::get('/order/view/{id}', [OrderController::class, 'view']);
         Route::post('order/update', [OrderController::class, 'update'])->name('order.update');

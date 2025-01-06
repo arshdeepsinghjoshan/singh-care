@@ -15,6 +15,8 @@ use Illuminate\Support\Str;
 use DataTables;
 use Illuminate\Validation\Rule;
 use PDF;
+use Carbon\Carbon;
+
 class OrderController extends Controller
 {
     public $setFilteredRecords = 0;
@@ -116,6 +118,29 @@ class OrderController extends Controller
         // } catch (\Exception $e) {
         //     return redirect()->back()->with('error', 'An error occurred while generating the invoice. ' . $e->getMessage());
         // }
+    }
+
+    public function getSalesData(Request $request)
+    {
+        $model = Order::get();
+
+        // Calculate total sales for each day
+        $totalSalesData = $model->groupBy(function ($date) {
+            return Carbon::parse($date->created_at)->format('Y-m-d');
+        })->map(function ($day) {
+            return $day->sum(function ($model) {
+                return $model->total_amount;
+            });
+        });
+
+        $salesData = $totalSalesData->map(function ($totalSales, $date) {
+            return [
+                'date' => $date,
+                'totalSales' => $totalSales
+            ];
+        })->values()->toArray();
+
+        return response()->json($salesData);
     }
     public function edit(Request $request)
     {
@@ -270,25 +295,14 @@ class OrderController extends Controller
                     $query->where(function ($q) use ($searchTerms) {
                         foreach ($searchTerms as $term) {
                             $q->where('id', 'like', "%$term%")
-                                ->orWhere('name', 'like', "%$term%")
-                                ->orWhere('description', 'like', "%$term%")
-                                ->orWhere('price', 'like', "%$term%")
-                                ->orWhere('hsn_code', 'like', "%$term%")
-                                ->orWhere('batch_no', 'like', "%$term%")
-                                ->orWhere('agency_name', 'like', "%$term%")
-                                ->orWhere('bill_date', 'like', "%$term%")
-                                ->orWhere('product_code', 'like', "%$term%")
-                                ->orWhere('expiry_date', 'like', "%$term%")
-                                ->orWhere('salt', 'like', "%$term%")
+                                ->orWhere('order_number', 'like', "%$term%")
+                                ->orWhere('total_amount', 'like', "%$term%")
                                 ->orWhere('created_at', 'like', "%$term%")
                                 // ->orWhereHas('getDepartment', function ($query) use ($term) {
                                 //     $query->where('title', 'like', "%$term%");
                                 // })
                                 ->orWhere(function ($query) use ($term) {
                                     $query->searchState($term);
-                                })
-                                ->orWhere(function ($query) use ($term) {
-                                    $query->searchPriority($term);
                                 })
                                 ->orWhereHas('createdBy', function ($query) use ($term) {
                                     $query->where('name', 'like', "%$term%");

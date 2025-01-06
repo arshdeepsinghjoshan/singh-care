@@ -103,20 +103,16 @@ class User extends Authenticatable
         $today = Carbon::today();
 
         // Fetch subscribed plans for today
-        $subscribedPlans = SubscribedPlan::with('subscriptionPlan')
-            ->whereDate('created_at', $today)
+        $order = Order::whereDate('created_at', $today)
             ->get();
 
         // Calculate total sales for today
-        $totalSales = $subscribedPlans->sum(function ($subscribedPlan) {
-            return $subscribedPlan->subscriptionPlan->amount;
+        $totalSales = $order->sum(function ($order) {
+            return $order->total_amount;
         });
 
-        // Calculate total profit for today
-        $totalProfit = $subscribedPlans->sum(function ($subscribedPlan) {
-            return $subscribedPlan->subscriptionPlan->price - $subscribedPlan->subscriptionPlan->cost;
-        });
-        return $totalProfit;
+   
+        return $totalSales;
         // return view('sales.todayProfit', compact('totalSales', 'totalProfit'));
     }
 
@@ -353,19 +349,19 @@ class User extends Authenticatable
 
 
             case "sales":
-                $totalSales = SubscribedPlan::with('subscriptionPlan')->get()->sum(function ($subscribedPlan) {
-                    return $subscribedPlan->subscriptionPlan->price;
+                $totalSales = Order::get()->sum(function ($order) {
+                    return $order->total_amount;
                 });
                 return $totalSales;
 
             case "sales_percentage":
-                $subscribedPlans = SubscribedPlan::with('subscriptionPlan')->get();
+                $order = Order::get();
 
-                $totalSales = $subscribedPlans->sum(function ($subscribedPlan) {
-                    return $subscribedPlan->subscriptionPlan->price;
+                $totalSales = $order->sum(function ($order) {
+                    return $order->total_amount;
                 });
-                $salesWithPercentages = $subscribedPlans->map(function ($subscribedPlan) use ($totalSales) {
-                    $price = $subscribedPlan->subscriptionPlan->price;
+                $salesWithPercentages = $order->map(function ($order) use ($totalSales) {
+                    $price = $order->total_amount;
                     $percentage = $totalSales > 0 ? ($price / $totalSales) * 100 : 0;
                     return  $percentage;
                 });

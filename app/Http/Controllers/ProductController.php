@@ -283,9 +283,6 @@ class ProductController extends Controller
                                 ->orWhere(function ($query) use ($term) {
                                     $query->searchState($term);
                                 })
-                                ->orWhere(function ($query) use ($term) {
-                                    $query->searchPriority($term);
-                                })
                                 ->orWhereHas('createdBy', function ($query) use ($term) {
                                     $query->where('name', 'like', "%$term%");
                                 });

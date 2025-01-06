@@ -229,7 +229,7 @@ class Order extends Model
 
     public function items()
     {
-        return $this->hasMany(OrderItem::class,'order_id');
+        return $this->hasMany(OrderItem::class, 'order_id');
     }
     public function getCreatedAt()
     {
@@ -284,6 +284,7 @@ class Order extends Model
                     'color' => 'btn btn-primary',
                     'title' => __('Invoice download'),
                     'url' => url('/order/download/' . $model->id),
+                    'visible' => false
 
                 ];
                 break;

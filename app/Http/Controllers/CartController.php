@@ -379,29 +379,22 @@ class CartController extends Controller
                     $query->where(function ($q) use ($searchTerms) {
                         foreach ($searchTerms as $term) {
                             $q->where('id', 'like', "%$term%")
-                                ->orWhere('name', 'like', "%$term%")
-                                ->orWhere('description', 'like', "%$term%")
-                                ->orWhere('price', 'like', "%$term%")
-                                ->orWhere('hsn_code', 'like', "%$term%")
-                                ->orWhere('batch_no', 'like', "%$term%")
-                                ->orWhere('agency_name', 'like', "%$term%")
-                                ->orWhere('bill_date', 'like', "%$term%")
-                                ->orWhere('product_code', 'like', "%$term%")
-                                ->orWhere('expiry_date', 'like', "%$term%")
-                                ->orWhere('salt', 'like', "%$term%")
-                                ->orWhere('created_at', 'like', "%$term%")
+                                ->orWhere('total_price', 'like', "%$term%")
+                                ->orWhere('unit_price', 'like', "%$term%")
+                                ->orWhere('quantity', 'like', "%$term%")
                                 // ->orWhereHas('getDepartment', function ($query) use ($term) {
                                 //     $query->where('title', 'like', "%$term%");
                                 // })
                                 ->orWhere(function ($query) use ($term) {
                                     $query->searchState($term);
                                 })
-                                ->orWhere(function ($query) use ($term) {
-                                    $query->searchPriority($term);
-                                })
                                 ->orWhereHas('createdBy', function ($query) use ($term) {
                                     $query->where('name', 'like', "%$term%");
-                                });
+                                })
+                                ->orWhereHas('product', function ($query) use ($term) {
+                                    $query->where('name', 'like', "%$term%");
+                                })
+                                ;
                         }
                     });
                 }

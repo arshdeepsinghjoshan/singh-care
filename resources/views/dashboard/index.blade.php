@@ -57,7 +57,7 @@ use App\Models\User;
                                 <div class="avatar flex-shrink-0">
                                     <img src="{{ url('/assets/img/icons/unicons/chart-success.png') }}" alt="chart success" class="rounded" />
                                 </div>
-                             
+
                             </div>
                             <span class="fw-semibold d-block mb-1">Profit</span>
                             <h3 class="card-title mb-2">${{(new App\Models\User())->profitSalesTransactions('profit')}}</h3>
@@ -75,7 +75,7 @@ use App\Models\User;
                                 <div class="avatar flex-shrink-0">
                                     <img src="{{ url('/assets/img/icons/unicons/wallet-info.png') }}" alt="Credit Card" class="rounded" />
                                 </div>
-                              
+
                             </div>
                             <span>Sales</span>
                             <h3 class="card-title text-nowrap mb-1">${{number_format((new App\Models\User())->profitSalesTransactions('sales'))}}</h3>
@@ -92,7 +92,7 @@ use App\Models\User;
                             <div class="avatar flex-shrink-0">
                                 <img src="{{ url('/assets/img/icons/unicons/wallet-info.png') }}" alt="Credit Card" class="rounded" />
                             </div>
-                           
+
                         </div>
                         <span>Total Investment</span>
                         <h3 class="card-title text-nowrap mb-1">${{Auth::user()->getTotalSubscribedPlanAmount()}}</h3>
@@ -117,85 +117,18 @@ use App\Models\User;
     </div>
     <!--/ Total Revenue -->
     <div class="col-12 col-md-8 col-lg-4 order-3 order-md-2">
-        <div class="row">
-            <div class="col-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="card-title d-flex align-items-start justify-content-between">
-                            <div class="avatar flex-shrink-0">
-                                <img src="{{ url('/assets/img/icons/unicons/paypal.png') }}" alt="Credit Card" class="rounded" />
-                            </div>
+        <div class="">
+            <div class="card h-100">
 
-                        </div>
-                        <span class="d-block mb-1">Profit</span>
-                        <h3 class="card-title text-nowrap mb-2">{{number_format((new App\Models\User())->profitSalesTransactions('percentageChange'),5)}}%</h3>
+                <div class="card-body">
+                    <div id="salesPieChart" style="height: 400px;"></div>
 
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="card-title d-flex align-items-start justify-content-between">
-                            <div class="avatar flex-shrink-0">
-                                <img src="{{ url('/assets/img/icons/unicons/cc-primary.png') }}" alt="Credit Card" class="rounded" />
-                            </div>
-
-                        </div>
-                        <span class="fw-semibold d-block mb-1">Credit Transactions</span>
-                        <h3 class="card-title mb-2">${{Auth::user()->transactions()->where('wallet_transactions.type_id',WalletTransaction::TYPE_CREDIT)->get()->sum('amount')}}</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="card-title d-flex align-items-start justify-content-between">
-                            <div class="avatar flex-shrink-0">
-                            <img src="{{ url('/assets/img/icons/unicons/cc-primary.png') }}" alt="Credit Card" class="rounded" />
-
-                            </div>
-
-                        </div>
-                        <span class="fw-semibold d-block mb-1">Debit Transactions</span>
-                        <h3 class="card-title mb-2">${{Auth::user()->transactions()->where('wallet_transactions.type_id',WalletTransaction::TYPE_DEBIT)->get()->sum('amount')}}</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="card-title d-flex align-items-start justify-content-between">
-                            <div class="avatar flex-shrink-0">
-                                <img src="{{ url('/assets/img/icons/unicons/cc-primary.png') }}" alt="Credit Card" class="rounded" />
-                            </div>
-                           
-                        </div>
-                        <span class="fw-semibold d-block mb-1">Total Transactions</span>
-                        <h3 class="card-title mb-2">${{Auth::user()->transactions()->get()->sum('amount')}}</h3>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
 
-
-
-
-    <div class="col-md-5 mt-2">
-        <div class="card h-100">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="card-title m-0 me-2">Sales</h5>
-
-            </div>
-            <div class="card-body">
-                <div id="salesPieChart" style="height: 400px;"></div>
-
-            </div>
-        </div>
-    </div>
 
 
 
@@ -204,29 +137,25 @@ use App\Models\User;
     @php
     $transactions = Auth::user()->transactions()->latest()->paginate(4);
     @endphp
-    <div class="col-md-7 mt-2">
-        <div class="card h-100">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="card-title m-0 me-2">Wallet Transactions</h5>
-                <div class="dropdown">
-                    <button class="btn p-0" type="button" id="transactionID" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="bx bx-dots-vertical-rounded"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
-                        <a class="dropdown-item" href="{{url('wallet/view/'.(isset(Auth::user()->wallet) && isset(Auth::user()->wallet->wallet_number) ? Auth::user()->wallet->id : 'null'))}}">View All</a>
+    <div class="col-md-12 mt-2">
+        <div class="col-lg-12 mb-4 order-0">
+            <div class="card">
+                <h5 class="card-header">{{ __('Orders') }}</h5>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <x-a-grid-view :id="'order_table'" :model="''" :url="'order/get-list/'" :columns="[
+                                'id',
+                                'order_number',
+                                'total_amount',
+                                'created_at',
+                                'created_by',
+                                'action',
+                            ]" />
                     </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div id="transactions">
-                    @include('wallet.wallet_transaction.transactions')
-
-
                 </div>
             </div>
         </div>
     </div>
-</div>
 </div>
 <!-- / Content -->
 
@@ -254,7 +183,7 @@ use App\Models\User;
 <script>
     function fetchData(dataType) {
         $.ajax({
-            url: '{{ route("subscribed.totatSale") }}',
+            url: '{{ route("order.totatSale") }}',
             method: 'GET',
             data: {
                 type: dataType
@@ -270,7 +199,7 @@ use App\Models\User;
     }
 
     fetchData('dailyData');
- 
+
 
     function renderLineChart(data) {
         Highcharts.chart('salesChart', {
