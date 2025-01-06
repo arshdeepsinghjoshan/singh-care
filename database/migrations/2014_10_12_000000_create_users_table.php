@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('state_id');
             $table->string('role_id');
             $table->string('type_id')->nullable();
+            $table->string('father_name')->nullable(64);
             $table->string('activation_key')->nullable();
             $table->string('position_id')->nullable();
             $table->string('parent_id')->nullable();
