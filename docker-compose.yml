@@ -1,0 +1,33 @@
+services:
+  app:
+    image: singhcare
+    container_name: singhcare
+    build:
+      context: .
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+    environment:
+      - DB_HOST=mysql-db            # Use the container name of the db service
+      - DB_PORT=3306
+      - DB_DATABASE=singh_care
+      - DB_USERNAME=root
+      - DB_PASSWORD=   # Leave empty if not used, otherwise set it to root password
+
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: MySecurePassword123!   # Correct the key and value format
+      MYSQL_DATABASE: singh_care
+    ports:
+      - "3307:3306"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

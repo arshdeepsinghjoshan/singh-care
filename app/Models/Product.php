@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\AActiveRecord;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Symfony\Component\Uid\NilUlid;
 
 class Product extends Model
 {
@@ -88,9 +89,15 @@ class Product extends Model
     }
 
 
-    public function getCategoryOption()
+    public function getCategoryOption($type_id = null)
     {
-        return ProductCategory::where('state_id', ProductCategory::STATE_ACTIVE)->get();
+        $query = ProductCategory::findActive();
+
+        if (!is_null($type_id)) {
+            $query->where('type_id', $type_id);
+        }
+
+        return $query->get();
     }
 
 

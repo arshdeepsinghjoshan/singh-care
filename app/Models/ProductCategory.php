@@ -14,13 +14,18 @@ class ProductCategory extends Model
 
     const STATE_DELETE = 2;
 
+    const TYPE_AGENCY = 0;
+
+    const TYPE_MFG = 1;
+
     use HasFactory;
 
     use AActiveRecord;
-    
+
     protected $fillable = [
         'name',
         'slug',
+        'type_id',
         'state_id',
         'created_by_id'
 
@@ -33,6 +38,21 @@ class ProductCategory extends Model
             self::STATE_DELETE => "Deleted",
         ];
     }
+
+    public static function getTypeOptions()
+    {
+        return [
+            self::TYPE_AGENCY => "Agency",
+            self::TYPE_MFG => "Mfg",
+        ];
+    }
+
+    public function getType()
+    {
+        $list = self::getTypeOptions();
+        return isset($list[$this->type_id]) ? $list[$this->type_id] : 'Not Defined';
+    }
+
 
     public static function getStateOptionsBadge($stateValue)
     {
@@ -64,7 +84,7 @@ class ProductCategory extends Model
         return isset($list[$this->state_id]) ?  'badge badge-' . $list[$this->state_id] : 'Not Defined';
     }
 
- 
+
     public function getStateBadgeOption()
     {
         $list = [

@@ -112,7 +112,7 @@ class Cart extends Model
         return $query->where(function ($query) use ($search, $stateOptions) {
             foreach ($stateOptions as $stateId => $stateName) {
                 if (stripos($stateName, $search) !== false) {
-                    $query->orWhere('state_id', $stateId);
+                    $query->orWhere('status', $stateId);
                 }
             }
         });
@@ -219,11 +219,7 @@ class Cart extends Model
     }
     public function createdBy()
     {
-        return $this->belongsTo(User::class, 'created_by_id');
-    }
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function getCreatedAt()
@@ -247,6 +243,11 @@ class Cart extends Model
             ->where('model_type', self::class);
     }
 
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 
     public function getUpdatedAt()
     {

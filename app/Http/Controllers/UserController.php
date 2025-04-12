@@ -311,13 +311,13 @@ class UserController extends Controller
             "email" => "required|email",
             "profile_image" => 'nullable|image|mimes:jpeg,png,jpg'
         ];
-        // if ($id === null) {
-        //     $rules = array_merge($rules, [
-        //         "password" => "required|string|min:4",
-        //         "confirm_password" => "required|same:password",
+        if ($id === null) {
+            $rules = array_merge($rules, [
+                "password" => "required|string|min:4",
+                "confirm_password" => "required|same:password",
 
-        //     ]);
-        // }
+            ]);
+        }
         return Validator::make($data, $rules);
     }
 
@@ -331,10 +331,11 @@ class UserController extends Controller
             }
             $model = new User();
             $model->fill($request->all());
+            $model->generateReferralCode();
             $model->role_id = User::ROLE_USER;
             $model->state_id = User::STATE_ACTIVE;
             $model->created_by_id = Auth::id();
-            // $model->password = Hash::make($request->password);
+            $model->password = Hash::make($request->password);
             if ($request->profile_image) {
                 $model->profile_image = $this->imageUpload($request, "profile_image", '/public/uploads');
             }

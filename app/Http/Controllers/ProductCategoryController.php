@@ -42,10 +42,11 @@ class ProductCategoryController extends Controller
                 'max:150',
                 Rule::unique('product_categories', 'name')->ignore($id)
             ],
+            'type_id' => 'required|in:0,1'
 
         ]);
     }
-    public function store(Request $request)
+    public function add(Request $request)
     {
         try {
             $validator = $this->validator($request->all());
@@ -121,7 +122,7 @@ class ProductCategoryController extends Controller
 
 
 
-    public function getDepartmenttList(Request $request, $id = null)
+    public function list(Request $request, $id = null)
     {
         $query  = ProductCategory::with(['createdBy']);
 
@@ -137,6 +138,9 @@ class ProductCategoryController extends Controller
             })
             ->addColumn('name', function ($data) {
                 return !empty($data->name) ? (strlen($data->name) > 60 ? substr(ucfirst($data->name), 0, 60) . '...' : ucfirst($data->name)) : 'N/A';
+            })
+            ->addColumn('type', function ($data) {
+                return $data->getType();
             })
 
             ->addColumn('status', function ($data) {

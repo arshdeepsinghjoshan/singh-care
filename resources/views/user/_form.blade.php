@@ -1,5 +1,5 @@
 @php
-use App\Models\User;
+    use App\Models\User;
 
 @endphp
 
@@ -26,7 +26,7 @@ use App\Models\User;
                     value="{{ old('name', $model->name) }}">
             </div>
             @error('name')
-            <p style="color:red;">{{ $errors->first('name') }}</p>
+                <p style="color:red;">{{ $errors->first('name') }}</p>
             @enderror
         </div>
 
@@ -38,52 +38,93 @@ use App\Models\User;
                     value="{{ old('email', $model->email) }}">
             </div>
             @error('email')
-            <p style="color:red;">{{ $errors->first('email') }}</p>
+                <p style="color:red;">{{ $errors->first('email') }}</p>
             @enderror
         </div>
-        <div class="col-xl-4 col-lg-4 col-md-6 col-12">
-            <div class="mb-3 required">
-                <label class="pt-2 fw-bold" for="btncheck1"> Phone Number </label>
-                <input type="text" class="form-control d-block" name="contact_no"
-                    value="{{ old('contact_no', $model->contact_no) }}">
-            </div>
-            @error('contact_no')
-            <p style="color:red;">{{ $errors->first('contact_no') }}</p>
-            @enderror
-        </div>
-        <div class="col-xl-4 col-lg-4 col-md-6 col-12">
-            <div class="mb-3 required">
-                <label class="pt-2 fw-bold" for="btncheck1"> Address </label>
-                <input type="text" class="form-control d-block" name="address"
-                    value="{{ old('address', $model->address) }}">
-            </div>
-            @error('address')
-            <p style="color:red;">{{ $errors->first('address') }}</p>
-            @enderror
-        </div>
-
+      
 
 
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
             <div class="mb-3">
                 <label class="pt-2 fw-bold" for="btncheck1"> Profile Image </label>
                 <input type="file" class="form-control d-block"
-                    name="profile_image">
+                    name="profile_image" >
             </div>
             @error('profile_image')
-            <p style="color:red;">{{ $errors->first('profile_image') }}</p>
+                <p style="color:red;">{{ $errors->first('profile_image') }}</p>
             @enderror
         </div>
 
+        @if (empty($model->exists))
+           
 
+            <div class="col-xl-4 col-lg-4 col-md-6 col-12">
+                <div class="position-relative">
+
+                    <div class="mb-3 required">
+                        <label class="pt-2 fw-bold" for="btncheck1"> Password </label>
+                        <input type="password" id="password" class="form-control d-block" name="password">
+                    </div>
+                    <div class="eye-icon">
+                        <i toggle="#user-confirm_password" class="fa toggle-password fa-eye-slash"></i>
+
+                    </div>
+                </div>
+
+                @error('password')
+                    <p style="color:red;">{{ $errors->first('password') }}</p>
+                @enderror
+            </div>
+
+            <div class="col-xl-4 col-lg-4 col-md-6 col-12 change-password-field">
+                <div class="position-relative">
+                    <div class="mb-3 required">
+
+                        <label class="pt-2 fw-bold" for="btncheck1"> Confirm Password </label>
+                        <input type="password" id="confirm_password" class="form-control d-block"
+                            name="confirm_password">
+                    </div>
+
+                    <div class="eye-icon">
+                        <i toggle="#user-confirm_password" class="fa toggle-password-confirm fa-eye-slash"></i>
+
+                    </div>
+                </div>
+                @error('confirm_password')
+                    <p style="color:red;">{{ $errors->first('confirm_password') }}</p>
+                @enderror
+            </div>
+        @endif
+
+        @if (User::isAdmin() && $model->role_id != User::ROLE_ADMIN)
+
+            <div class="col-xl-4 col-lg-4 col-md-6 col-12">
+                <div class="mb-3 required">
+                    <label class="pt-2 fw-bold" for="btncheck1"> Role </label>
+                    <select name="role_id" class="validate form-control" id="role_id">
+                        <option value="">Select Role</option>
+                        @foreach ($model->getRoleOptions() as $key => $role)
+                            <option value="{{ $key }}"
+                                {{ old('role_id', $model->role_id) == $key ? 'selected' : '' }}>
+                                {{ $role }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @error('role_id')
+                    <p style="color:red;">{{ $errors->first('role_id') }}</p>
+                @enderror
+            </div>
+
+        @endif
         <div class="col-lg-12">
             <div class="d-flex align-items-center justify-content-end">
                 <div class="downoad-btns text-end my-4">
                     <button class="btn btn-primary text-white ms-2">
                         @empty($model->exists)
-                        {{ __('Add') }}
+                            {{ __('Add') }}
                         @else
-                        {{ __('Update') }}
+                            {{ __('Update') }}
                         @endempty
                     </button>
                 </div>
