@@ -15,24 +15,28 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name', 128)->nullable();
+            $table->string('mfg_id', 128)->nullable();
+            $table->string('agency_id', 128)->nullable();
             $table->string('slug', 128)->nullable();
-            $table->string('product_code', 128)->nullable();
-            $table->string('hsn_code', 128)->nullable();
-            $table->string('batch_no', 128)->nullable();
-            $table->string('agency_name', 255)->nullable();
-            $table->text('description')->nullable();
             $table->decimal('price', 20, 6)->unsigned()->default(0);
-            $table->decimal('distribution_price', 20, 6)->unsigned()->default(0);
+            $table->decimal('mrp_price', 20, 6)->unsigned()->default(0);
+            $table->string('quantity')->default(0);
+            $table->string('hsn_code', 128)->nullable();
+            $table->date('expiry_date')->nullable();
+            $table->string('salt')->nullable();
+            $table->string('agency_name', 255)->nullable();
+            $table->string('pkg', 125)->nullable();
+            $table->date('bill_date')->nullable();
             $table->integer('state_id')->default(1);
             $table->integer('type_id')->nullable(); // 1 = Package
             $table->string('image')->nullable();
             $table->text('images')->nullable();
-            $table->string('salt')->nullable();
-            $table->integer('category_id')->nullable();
+            $table->string('product_code', 128)->nullable();
+            $table->string('batch_no', 128)->nullable();
+            $table->text('description')->nullable();
+            $table->decimal('distribution_price', 20, 6)->unsigned()->default(0);
             $table->integer('tax_id')->nullable();
             $table->integer('created_by_id');
-            $table->timestamp('bill_date');
-            $table->timestamp('expiry_date')->nullable();
             $table->timestamps();
         });
         Schema::table('products', function (Blueprint $table) {

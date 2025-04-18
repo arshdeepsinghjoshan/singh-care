@@ -259,7 +259,12 @@ class Cart extends Model
         return Product::findActive()->get();
     }
 
-
+    public function getTotalQuantitySum()
+    {
+        $query =  Cart::my()->whereNull('type_id');
+        
+        return $query->sum('quantity');
+    }
 
 
     public function updateMenuItems($action, $model = null)

@@ -33,17 +33,9 @@
                             @csrf
                             <div class="col-md-8">
                                 <div class="d-md-flex align-items-start">
-                                    <div class="flex-grow-1">
-                                        <div class="mb-3 field-category-title required">
-                                            <label class="form-label" for="category-title">Name</label>
-                                            <input type="text" id="category-title" class="form-control"
-                                                value="{{ old('name') }}" id="validationCustom01" name="name"
-                                                maxlength="150">
-                                        </div>
-                                    </div>
 
-                                    <div class="flex-grow-1 category-type">
-                                        <div class="mb-3 field-category-title required">
+                                    <div class="flex-grow-1 ">
+                                        <div class="mb-3 field-category-title required custom-select-wrapper">
                                             <label class="form-label" for="category-title">Category Type</label>
                                             <select name="type_id" class="validate form-control" id="type_id">
                                                 @foreach ($model->getTypeOptions() as $key => $role)
@@ -55,6 +47,16 @@
                                             </select>
                                         </div>
                                     </div>
+
+                                    <div class="flex-grow-1 category-type">
+                                        <div class="mb-3 field-category-title required">
+                                            <label class="form-label" for="category-title">Name</label>
+                                            <input type="text" id="category-title" class="form-control"
+                                                value="{{ old('name') }}" id="validationCustom01" name="name"
+                                                maxlength="150">
+                                        </div>
+                                    </div>
+
                                     <div class="mt-3 mt-sm-4 text-center ml-sm-3">
                                         <button type="submit" id="blog-category-form-submit"
                                             class="btn btn-primary m-1">Save</button>
@@ -71,7 +73,7 @@
                     <div class="card-body">
                         <x-a-update-menu-items :model="$model" :action="'index'" />
                         <div class="table-responsive">
-                            <x-a-grid-view :id="'product_category_table'" :model="$model" :url="'product/category/get-list/'" :columns="['id', 'name','type', 'status', 'created_at', 'created_by', 'action']" />
+                            <x-a-grid-view :id="'product_category_table'" :model="$model" :url="'product/category/get-list/'" :columns="['id', 'name', 'type', 'status', 'created_at', 'created_by', 'action']" />
                         </div>
                     </div>
                 </div>

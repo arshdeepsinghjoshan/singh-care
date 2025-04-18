@@ -1,21 +1,6 @@
-<style>
-    .custom-select-wrapper {
-        position: relative;
-    }
+<form action="{{ route(empty($model->exists) ? 'product.add' : 'product.update', $model->id) }}" method="post"
+    id="product-update" enctype="multipart/form-data">
 
-    .custom-select-wrapper::after {
-        content: '▼';
-        /* Unicode for down arrow */
-        position: absolute;
-        top: 70%;
-        right: 15px;
-        transform: translateY(-50%);
-        pointer-events: none;
-        font-size: 14px;
-        color: #555;
-    }
-</style>
-<form action="{{ route('product.add') }}" method="post" id="product-update" enctype="multipart/form-data">
     @csrf
     <div class="row align-items-starts">
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
@@ -31,18 +16,21 @@
 
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
             <div class="mb-3 custom-select-wrapper ">
-                <label class="pt-2 fw-bold" for="btncheck1"> MFG <i class="fa fa-plus btn btn-primary btn-sm mb-1">
+                <label class="pt-2 fw-bold" for="btncheck1"> MFG <i class="fa fa-plus btn btn-primary btn-sm mb-1"
+                        data-bs-toggle="modal" data-bs-target="#customerModal">
                     </i></label>
-                <select name="category_id" class="validate form-control" id="category_id">
+                <select name="mfg_id" class="validate form-control" id="category_id-1">
                     @foreach ($model->getCategoryOption(1) as $category)
                         <option value="{{ $category->id }}"
-                            {{ $category->id == $model->category_id ? 'selected' : '' }}>{{ $category->name }}</option>
+                            {{ old('mfg_id', $model->mfg_id) == $category->id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
                     @endforeach
-
                 </select>
+
             </div>
-            @error('category_id')
-                <p style="color:red;">{{ $errors->first('category_id') }}</p>
+            @error('mfg_id')
+                <p style="color:red;">{{ $errors->first('mfg_id') }}</p>
             @enderror
         </div>
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
@@ -74,11 +62,11 @@
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
             <div class="mb-3 ">
                 <label class="pt-2 fw-bold" for="btncheck1"> Quantity </label>
-                <input type="text" class="form-control d-block" name="quantity_in_stock"
-                    value="{{ old('quantity_in_stock', $model->quantity_in_stock) }}">
+                <input type="text" class="form-control d-block" name="quantity"
+                    value="{{ old('quantity', $model->quantity) }}">
             </div>
-            @error('quantity_in_stock')
-                <p style="color:red;">{{ $errors->first('quantity_in_stock') }}</p>
+            @error('quantity')
+                <p style="color:red;">{{ $errors->first('quantity') }}</p>
             @enderror
         </div>
 
@@ -124,18 +112,19 @@
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
             <div class="mb-3 custom-select-wrapper">
                 <label class="pt-2 fw-bold" for="btncheck1"> Agency Name <i
-                        class="fa fa-plus btn btn-primary btn-sm mb-1"></i></label>
-                <select name="category_id" class="validate form-control" id="category_id">
+                        class="fa fa-plus btn btn-primary btn-sm mb-1"data-bs-toggle="modal"
+                        data-bs-target="#agencyName"></i></label>
+                <select name="agency_id" class="validate form-control" id="category_id-0">
                     @foreach ($model->getCategoryOption(0) as $category)
                         <option value="{{ $category->id }}"
-                            {{ $category->id == $model->category_id ? 'selected' : '' }}>{{ $category->name }}
+                            {{ $category->id == $model->agency_id ? 'selected' : '' }}>{{ $category->name }}
                         </option>
                     @endforeach
 
                 </select>
             </div>
-            @error('agency_name')
-                <p style="color:red;">{{ $errors->first('agency_name') }}</p>
+            @error('agency_id')
+                <p style="color:red;">{{ $errors->first('agency_id') }}</p>
             @enderror
         </div>
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
@@ -152,10 +141,10 @@
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
             <div class="mb-3 ">
                 <label class="pt-2 fw-bold" for="btncheck1">PKG.</label>
-                <textarea rows="1" name="description" id="description" class="validate form-control">{{ $model->description }} </textarea>
+                <textarea rows="1" name="pkg" id="pkg" class="validate form-control">{{ $model->pkg }} </textarea>
             </div>
-            @error('description')
-                <p style="color:red;">{{ $errors->first('description') }}</p>
+            @error('pkg')
+                <p style="color:red;">{{ $errors->first('pkg') }}</p>
             @enderror
         </div>
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
@@ -196,5 +185,127 @@
                 </div>
             </div>
         </div>
+
+
     </div>
 </form>
+
+
+<div class="modal fade" id="customerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel1">Add MFG</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/add-mfg" method="POST" class="ajax-form" id="mfgForm"
+                data-success-callback="formSuccessCallback">
+                <input type="hidden" name="type_id" value="1" class="form-control" />
+
+                <div class="modal-body">
+
+                    <div class="row g-2 mt-2">
+                        <div class="col mb-0">
+                            <label for="mfg" class="form-label">MFG</label>
+                            <input type="text" id="mfg" name="product_type" class="form-control"
+                                placeholder="mfg.." />
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="submit" id="add-customer" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="agencyName" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel1">Agency Name</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/add-mfg" method="POST" class="ajax-form" id="formAgencyName"
+                data-success-callback="formSuccessCallback">
+
+                <div class="modal-body">
+                    <input type="hidden" name="type_id" value="0" class="form-control" />
+                    <div class="row g-2 mt-2">
+                        <div class="col mb-0">
+                            <label for="mfg" class="form-label">Agency</label>
+                            <input type="text" id="mfg" name="product_type" class="form-control"
+                                placeholder="agency name.." />
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="submit" id="agencyNameButton" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        $(document).on('submit', '#mfgForm', function(e) {
+            e.preventDefault();
+            let formData = $(this).serialize();
+            ajaxRequest(formData);
+            $('#customerModal').modal('hide');
+        });
+
+        $(document).on('submit', '#formAgencyName', function(e) {
+            e.preventDefault();
+            let formData = $(this).serialize();
+            ajaxRequest(formData);
+            $('#agencyName').modal('hide');
+        });
+
+    });
+
+    function ajaxRequest(data) {
+        $.ajax({
+            url: "{{ '/product/add-mfg' }}", // Your endpoint URL
+            method: 'POST',
+            data: data,
+            success: function(response) {
+                // Call your success callback
+                formSuccessCallback(response);
+            },
+            error: function(err) {
+                console.log(err);
+            }
+        });
+
+    }
+
+    function formSuccessCallback(response) {
+
+        console.log('#category_id' + response.type_id);
+        // Assuming response returns updated category list
+        let categorySelect = $('#category_id-' + response.type_id); // Adjust selector as needed
+        categorySelect.empty(); // Clear old options
+
+        // Append new options
+        $.each(response.categories, function(index, category) {
+            categorySelect.append(
+                $('<option>', {
+                    value: category.id,
+                    text: category.name
+                })
+            );
+        });
+    }
+</script>

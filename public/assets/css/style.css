@@ -8,6 +8,22 @@
     text-align: end !important;
 }
 
+    .custom-select-wrapper {
+        position: relative;
+    }
+
+    .custom-select-wrapper::after {
+        content: '▼';
+        /* Unicode for down arrow */
+        position: absolute;
+        top: 70%;
+        right: 15px;
+        transform: translateY(-50%);
+        pointer-events: none;
+        font-size: 14px;
+        color: #555;
+    }
+
 /* Breadcrumbs */
 .breadcrumb {
     font-size: 14px;

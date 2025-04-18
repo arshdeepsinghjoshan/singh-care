@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Department;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -147,7 +148,35 @@ class ProductController extends Controller
         }
     }
 
+    public function addMfg(Request $request)
+    {
+        try {
+            $request->validate([
+                'product_type' => 'required|string|max:255',
+            ]);
 
+            // Store new MFG
+            ProductCategory::create([
+                'name' => $request->product_type,
+                'created_by_id' => Auth::user()->id,
+                'type_id' => $request->type_id, // Assuming type_id is 1 for MFG
+            ]);
+
+            // Assuming you want to return updated categories
+            $categories = ProductCategory::where('type_id', $request->type_id)->get();
+
+            return response()->json([
+                'success' => true,
+                'categories' => $categories,
+                'type_id' => $request->type_id
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ]);
+        }
+    }
     public function update(Request $request)
     {
         if ($this->validator($request->all())->fails()) {
@@ -218,6 +247,10 @@ class ProductController extends Controller
             ->addColumn('price', function ($data) {
                 return number_format($data->price, 2);
             })
+
+            ->addColumn('mrp_price', function ($data) {
+                return number_format($data->mrp_price, 2);
+            })
             ->addColumn('status', function ($data) {
                 return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
             })
@@ -235,7 +268,9 @@ class ProductController extends Controller
             ->addColumn('priority_id', function ($data) {
                 return $data->getPriority();
             })
-
+            ->addColumn('agency_name', function ($data) {
+                return $data->agency ?  $data->agency->name : 'N/A';
+            })
             ->addColumn('department_id', function ($data) {
                 return $data->getDepartment ?  $data->getDepartment->title : 'N/A';
             })
@@ -267,15 +302,11 @@ class ProductController extends Controller
                         foreach ($searchTerms as $term) {
                             $q->where('id', 'like', "%$term%")
                                 ->orWhere('name', 'like', "%$term%")
-                                ->orWhere('description', 'like', "%$term%")
                                 ->orWhere('price', 'like', "%$term%")
                                 ->orWhere('hsn_code', 'like', "%$term%")
                                 ->orWhere('batch_no', 'like', "%$term%")
-                                ->orWhere('agency_name', 'like', "%$term%")
                                 ->orWhere('bill_date', 'like', "%$term%")
-                                ->orWhere('product_code', 'like', "%$term%")
                                 ->orWhere('expiry_date', 'like', "%$term%")
-                                ->orWhere('salt', 'like', "%$term%")
                                 ->orWhere('created_at', 'like', "%$term%")
                                 // ->orWhereHas('getDepartment', function ($query) use ($term) {
                                 //     $query->where('title', 'like', "%$term%");
@@ -287,6 +318,8 @@ class ProductController extends Controller
                                     $query->searchPriority($term);
                                 })
                                 ->orWhereHas('createdBy', function ($query) use ($term) {
+                                    $query->where('name', 'like', "%$term%");
+                                }) ->orWhereHas('agency', function ($query) use ($term) {
                                     $query->where('name', 'like', "%$term%");
                                 });
                         }

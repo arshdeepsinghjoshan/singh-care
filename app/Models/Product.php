@@ -106,11 +106,15 @@ class Product extends Model
         return $this->belongsTo(User::class, 'created_by_id');
     }
 
-    public function getCategory()
+    public function agency()
     {
-        return $this->belongsTo(ProductCategory::class, 'category_id');
+        return $this->belongsTo(ProductCategory::class, 'agency_id');
     }
 
+    public function mfg()
+    {
+        return $this->belongsTo(ProductCategory::class, 'mfg_id');
+    }
 
 
     public function updateMenuItems($action, $model = null)
@@ -123,6 +127,13 @@ class Product extends Model
                     'color' => 'btn btn-primary',
                     'title' => __('Manage'),
                     'url' => url('product'),
+
+                ];
+                $menu['update'] = [
+                    'label' => 'fa fa-edit',
+                    'color' => 'btn btn-icon btn-primary',
+                    'title' => __('Update'),
+                    'url' => url('product/edit/' . ($model->id ?? 0) . '/' . ($model->slug ?? '')),
 
                 ];
                 break;

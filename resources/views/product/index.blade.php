@@ -59,10 +59,7 @@
                                     'attribute' => 'batch_no',
                                     'label' => 'Batch',
                                 ],
-                                 [
-                                    'attribute' => 'batch_no',
-                                    'label' => 'Batch',
-                                ],
+                               
                                 'name',
                                 'price',
                                 'mrp_price',
