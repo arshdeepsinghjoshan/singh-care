@@ -188,23 +188,23 @@ class ProductController extends Controller
             if (!$model) {
                 return redirect()->back()->with('error', 'Product not found');
             }
-            $all_images = null;
-
-            if ($request->hasFile('image')) {
-                $ticket_images = $request->file('image');
+            $all_images = [];
+            $ticket_images = $request->file('images');
+            // Check if images were uploaded
+            if ($request->hasFile('images')) {
                 foreach ($ticket_images as $image) {
                     if ($image->isValid()) {
                         $imageName = rand(1, 100000) . time() . '_' . $image->getClientOriginalName();
-                        $image->move(public_path('support_module/ticket_images'), $imageName);
-                        $all_images[] =  $imageName;
+                        $image->move(public_path('products'), $imageName);
+                        $all_images[] = $imageName;
                     }
                 }
-                $all_images = json_encode($all_images);
-            } else {
-                $all_images = $model->image;
             }
             $model->fill($request->all());
-            $model->image = $all_images;
+            if ($request->hasFile('images')) {
+
+                $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
+            }
             if ($model->save()) {
                 return redirect()->back()->with('success', 'Product updated successfully!');
             } else {
@@ -271,6 +271,9 @@ class ProductController extends Controller
             ->addColumn('agency_name', function ($data) {
                 return $data->agency ?  $data->agency->name : 'N/A';
             })
+            ->addColumn('mfg', function ($data) {
+                return $data->mfg ?  $data->mfg->name : 'N/A';
+            })
             ->addColumn('department_id', function ($data) {
                 return $data->getDepartment ?  $data->getDepartment->title : 'N/A';
             })
@@ -319,7 +322,7 @@ class ProductController extends Controller
                                 })
                                 ->orWhereHas('createdBy', function ($query) use ($term) {
                                     $query->where('name', 'like', "%$term%");
-                                }) ->orWhereHas('agency', function ($query) use ($term) {
+                                })->orWhereHas('agency', function ($query) use ($term) {
                                     $query->where('name', 'like', "%$term%");
                                 });
                         }

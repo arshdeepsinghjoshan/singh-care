@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
 class Order extends Model
@@ -42,7 +43,9 @@ class Order extends Model
 
     const ORDER_STATE_DELIVERED = 1;
 
-
+    const STATE_COMPLETED = 1;
+    const STATE_CANCEL = 2;
+    const STATE_REJECTED = 3;
 
 
     const SHIPPING_METHOD_PICKUP = 0;
@@ -53,10 +56,10 @@ class Order extends Model
     public static function getStateOptions()
     {
         return [
-            self::STATE_INITIATED => "Initiated",
-            self::STATE_PAID => "Paid",
-            self::STATE_FAILED => "Failed",
             self::STATE_PENDING => "Pending",
+            self::STATE_COMPLETED => "Completed",
+            self::STATE_CANCEL => "Cancel",
+            self::STATE_REJECTED => "Rejected",
         ];
     }
 
@@ -93,7 +96,7 @@ class Order extends Model
     public function getState()
     {
         $list = self::getStateOptions();
-        return isset($list[$this->status]) ? $list[$this->status] : 'Not Defined';
+        return isset($list[$this->state_id]) ? $list[$this->state_id] : 'Not Defined';
     }
 
     public function getOrderStatus()
@@ -275,11 +278,11 @@ class Order extends Model
 
                 ];
 
-                $menu['download'] = [
-                    'label' => 'fa fa-download',
+                $menu['download-pdf'] = [
+                    'label' => 'fa fa-file-pdf',
                     'color' => 'btn btn-primary',
-                    'title' => __('Invoice download'),
-                    'url' => url('/order/download/' . $model->id),
+                    'title' => __('Order'),
+                    'url' => url('/order/generate-pdf/' . Crypt::encryptString($model->id)),
 
                 ];
                 break;
@@ -312,5 +315,10 @@ class Order extends Model
     {
         $user_data = User::find($id);
         return $user_data->unique_id ?? 'N/A';
+    }
+
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class, 'order_id');
     }
 }

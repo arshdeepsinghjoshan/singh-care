@@ -12,6 +12,7 @@
         "laravel/tinker": "^2.8",
         "nwidart/laravel-modules": "^10.0",
         "phpoffice/phpspreadsheet": "^3.6",
+        "barryvdh/laravel-dompdf": "^3.0",
         "yajra/laravel-datatables-oracle": "~10.0"
     },
     "require-dev": {

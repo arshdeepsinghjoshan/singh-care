@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use DataTables;
 use Illuminate\Validation\Rule;
+use PDF;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class OrderController extends Controller
 {
@@ -26,6 +31,28 @@ class OrderController extends Controller
             return view('order.index', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
+    public function generatePDF(Request $request, $encodedId)
+    {
+        try {
+            $id = Crypt::decryptString($encodedId);
+        } catch (DecryptException $e) {
+            return redirect()->route('order')->with('error', 'Invalid request. Unable to decrypt the ID.');
+        } catch (\Exception $e) {
+            return redirect()->route('order')->with('error', 'An unexpected error occurred: ' . $e->getMessage());
+        }
+        $model = Order::find($id);
+        if (!$model) {
+            return redirect()->route('order')->with('error', 'Order not found.');
+        }
+        try {
+            // Generate the PDF
+            $pdf = PDF::loadView('pdf.order_invoice', compact('model'));
+            return $pdf->stream('invoice.pdf');
+        } catch (\Exception $e) {
+            return redirect('order')->with('error', 'Failed to generate PDF: ' . $e->getMessage());
         }
     }
     public function import(Request $request)
@@ -254,16 +281,8 @@ class OrderController extends Controller
                     $query->where(function ($q) use ($searchTerms) {
                         foreach ($searchTerms as $term) {
                             $q->where('id', 'like', "%$term%")
-                                ->orWhere('name', 'like', "%$term%")
-                                ->orWhere('description', 'like', "%$term%")
-                                ->orWhere('price', 'like', "%$term%")
-                                ->orWhere('hsn_code', 'like', "%$term%")
-                                ->orWhere('batch_no', 'like', "%$term%")
-                                ->orWhere('agency_name', 'like', "%$term%")
-                                ->orWhere('bill_date', 'like', "%$term%")
-                                ->orWhere('product_code', 'like', "%$term%")
-                                ->orWhere('expiry_date', 'like', "%$term%")
-                                ->orWhere('salt', 'like', "%$term%")
+                                ->orWhere('order_number', 'like', "%$term%")
+                                ->orWhere('total_amount', 'like', "%$term%")
                                 ->orWhere('created_at', 'like', "%$term%")
                                 // ->orWhereHas('getDepartment', function ($query) use ($term) {
                                 //     $query->where('title', 'like', "%$term%");
@@ -271,9 +290,7 @@ class OrderController extends Controller
                                 ->orWhere(function ($query) use ($term) {
                                     $query->searchState($term);
                                 })
-                                ->orWhere(function ($query) use ($term) {
-                                    $query->searchPriority($term);
-                                })
+
                                 ->orWhereHas('createdBy', function ($query) use ($term) {
                                     $query->where('name', 'like', "%$term%");
                                 });
@@ -346,7 +363,8 @@ class OrderController extends Controller
                 // Associate cart items with the newly created order
                 foreach ($cartItems as $cartItem) {
                     // dd($cartItem);
-                    $product = Product::find($cartItem->product_id);
+                    // $product = Product::find($cartItem->product_id)->with(['mfg', 'agency'])->first();
+                    $product = Product::with(['mfg', 'agency'])->where('id', $cartItem->product_id)->first();
 
                     if (!$product) {
                         return response()->json([

@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SiteController;
@@ -152,8 +153,9 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/order/edit/{id}', [OrderController::class, 'edit']);
         Route::get('/order/view/{id}', [OrderController::class, 'view']);
         Route::post('order/update', [OrderController::class, 'update'])->name('order.update');
+        Route::get('/order/item/view/{id}', [OrderItemController::class, 'view']);
 
-
+        Route::get('/order/generate-pdf/{id}', [OrderController::class, 'generatePDF']);
 
         Route::get('cart', [CartController::class, 'index']);
         Route::get('cart/create', [CartController::class, 'create']);

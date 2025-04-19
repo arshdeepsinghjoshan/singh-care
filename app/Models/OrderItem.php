@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\AActiveRecord;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use DataTables;
 
 class OrderItem extends Model
 {
@@ -155,5 +156,90 @@ class OrderItem extends Model
                 }
             }
         });
+    }
+
+
+
+    public function relationGridView($queryRelation, $request)
+    {
+        $dataTable = Datatables::of($queryRelation)
+            ->addIndexColumn()
+
+            ->addColumn('product_name', function ($data) {
+                $productModelJson = json_decode($data->product_json);
+
+                return !empty($productModelJson && $productModelJson->name) ? $productModelJson->name : 'N/A';
+            })
+
+            ->addColumn('total_amount', function ($data) {
+                return !empty($data->total_amount) ?  number_format($data->total_amount, 2)  : 'N/A';
+            })
+            ->addColumn('unit_amount', function ($data) {
+                return !empty($data->unit_amount) ?  number_format($data->unit_amount, 2) : 'N/A';
+            })
+
+            ->addColumn('quantity', function ($data) {
+                return !empty($data->quantity) ? $data->quantity : 'N/A';
+            })
+
+
+
+            ->addColumn('created_by', function ($data) {
+                return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
+            })
+
+            ->addColumn('name', function ($data) {
+                return !empty($data->name) ? (strlen($data->name) > 60 ? substr(ucfirst($data->name), 0, 60) . '...' : ucfirst($data->name)) : 'N/A';
+            })
+            ->addColumn('status', function ($data) {
+                return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
+            })
+
+            ->rawColumns(['created_by'])
+
+            ->addColumn('created_at', function ($data) {
+                return (empty($data->updated_at)) ? 'N/A' : date('Y-m-d', strtotime($data->updated_at));
+            })
+            ->addColumn('action', function ($data) {
+                $html = '<div class="table-actions text-center">';
+                // $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('subscription/plan/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
+                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('order/item/view/' . $data->id) . '"  ><i class="fa fa-eye
+                "data-toggle="tooltip"  title="View"></i></a>';
+                $html .=  '</div>';
+                return $html;
+            })->addColumn('customerClickAble', function ($data) {
+                $html = 0;
+
+                return $html;
+            })
+            ->rawColumns([
+                'action',
+                'created_at',
+                'status',
+                'customerClickAble'
+            ]);
+        if (!($queryRelation instanceof \Illuminate\Database\Query\Builder)) {
+            $searchValue = $request->input('search.value');
+            if ($searchValue) {
+                $searchTerms = explode(' ', $searchValue);
+                $collection = $queryRelation->filter(function ($item) use ($searchTerms) {
+                    foreach ($searchTerms as $term) {
+                        if (
+                            strpos($item->id, $term) !== false ||
+                            strpos($item->quantity, $term) !== false ||
+                            strpos($item->total_amount, $term) !== false ||
+                            strpos($item->created_at, $term) !== false ||
+                            (isset($item->createdBy) && strpos($item->createdBy->name, $term) !== false) ||
+                            $item->searchState($term)
+                        ) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+        }
+
+        return $dataTable->make(true);
     }
 }

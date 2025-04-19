@@ -62,7 +62,7 @@
                                
                                 'name',
                                 'price',
-                                'mrp_price',
+                                {{-- 'mrp_price', --}}
                             
                                 [
                                     'attribute' => 'hsn_code',
@@ -73,7 +73,9 @@
                                     'attribute' => 'expiry_date',
                                     'label' => 'EXP Date',
                                 ],
-                            
+                            [
+                                    'attribute' => 'mfg',
+                                ],
                                 [
                                     'attribute' => 'agency_name',
                                     'label' => 'Agency',
