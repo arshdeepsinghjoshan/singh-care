@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice</title>
+    <title>Products</title>
 </head>
 
 <body style="font-family: Arial, sans-serif; font-size: 12px;">
@@ -12,7 +12,7 @@
     <!-- Header Section -->
     <div id="sales-invoice" style="width: 96%; margin: 0 auto; padding: 10px; border: 1px solid #000;">
         <h4 style="text-align: center; margin: 0;">
-            Invoice</h4>
+            Products</h4>
         <table style="width: 100%; margin: 10px auto 0 auto; border-collapse: collapse; table-layout: fixed;">
             <tr style="">
 
@@ -43,129 +43,26 @@
                     <p style="margin: 3px 0; font-size: 8px;">CIN NO: 32147PB2003PTC026200</p>
                     {{-- <p style="margin: 3px 0; font-size: 8px;">Web Address: https://joshanchakki.web.app/</p> --}}
                     {{-- <p style="margin: 3px 0; font-size: 8px;">joshanchakki@gmail.com</p> --}}
-                    <p style="margin: 3px 0; font-size: 8px;">Customer Care: : 72787 08000</p>
+                    <p style="margin: 3px 0; font-size: 8px;">Customer Care: 72787 08000</p>
+                    <p style="margin: 3px 0; font-size: 8px;">Date:
+                        {{ empty(Now()) ? 'N/A' : date('Y-m-d h:i:s A', strtotime(Now())) }}</p>
+
 
                 </td>
             </tr>
         </table>
 
         <!-- Invoice and Transport Info -->
-        <table style="width: 100%; margin: 0 auto; border-collapse: collapse; margin-bottom: 0px; table-layout: fixed;">
-            <tr style="border-top: none;">
 
-                <td
-                    style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">
-                    Order No:
-                </td>
-                <td
-                    style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    {{ $model->order_number ?? 'N/A' }}
-                </td>
-                <td
-                    style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">
-                    Order Date:
-                </td>
-                <td
-                    style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    {{ empty($model->created_at) ? 'N/A' : date('Y-m-d', strtotime($model->created_at)) }}
-
-
-                </td>
-
-                <td
-                    style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">
-                    Last Update:
-                </td>
-                <td
-                    style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    {{ empty($model->updated_at) ? 'N/A' : date('Y-m-d', strtotime($model->updated_at)) }}
-
-
-
-                </td>
-            </tr>
-            <tr>
-
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">Invoice Dtae:
-                </td>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    {{ empty(Now()) ? 'N/A' : date('Y-m-d h:i:s A', strtotime(Now())) }}
-
-                </td>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">Order Status:
-                </td>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    {{ $model->getState() ?? 'N/A' }}
-
-                </td>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px; font-weight: 700;">Payment Status:
-                </td>
-                <td style="border: 1px solid #000; padding: 2px 3px; font-size: 8px;">
-                    Pending
-                </td>
-            </tr>
-
-
-
-        </table>
-        {{-- 
-
-        <table style="width: 100%; margin: 0 auto; border-collapse: collapse; ">
-            <!-- First Row with 2 Columns -->
-            <th colspan="2"
-                style="border-left: 1px solid #000; border-right: 1px solid #000; text-align: left; font-size: 8px; padding: 4px 5px;">
-                Bill to:</th>
-            <th colspan="2"
-                style="border-left: 1px solid #000; border-right: 1px solid #000; text-align: left; font-size: 8px; padding: 4px 5px;">
-                Shipped To:</th>
-            <!-- Subsequent Rows with 4 Columns -->
-            <tr>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Name:</td>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{ $model->createdBy->name ?? 'N/A' }}
-
-                </td>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Name:</td>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{ $model->createdBy->name ?? 'N/A' }}
-
-                </td>
-            </tr>
-
-
-
-            <tr>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Contact No:</td>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{ $model->createdBy->contact_no ?? 'N/A' }}
-
-                </td>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Contact No:</td>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{ $model->createdBy->contact_no ?? 'N/A' }}
-
-                </td>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Address:</td>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{ $model->createdBy->address ?? 'N/A' }}
-
-                </td>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px; font-weight: 700;">Address:</td>
-                <td style="border: 1px solid #000; padding: 4px 5px; font-size: 8px;">
-                    {{ $model->createdBy->address ?? 'N/A' }}
-
-                </td>
-            </tr>
-
-        </table> --}}
         <!-- Item Details Section -->
         <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
             <thead style="width: 100%; border-collapse: collapse; margin-top: 10px; white-space: wrap;">
                 <tr style="background-color: #f0f0f0; border: 1px solid black;">
                     <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
                         Sr.</th>
+                    <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">HSN</th>
+                    <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">BATCH NO.
+                    </th>
 
                     <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">QTY</th>
                     <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">MFG
@@ -174,43 +71,80 @@
                     </th>
                     <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">Product
                         Name</th>
+                    <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">MRP</th>
 
-                    <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">Remarks
+                    <th
+                        style="background-color:yellow; border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                        Rate</th>
+                    <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">AGENCY NAME
+                    </th>
+                    <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">ADDRESS</th>
+
+                    <th style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">BILL DATE
                     </th>
 
                 </tr>
             </thead>
             <tbody>
-                @foreach ($model->items as $orderItem)
+                @foreach ($model as $product)
                     <tr style="border: 1px solid black;">
                         <!-- Sr. No. -->
                         <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
                             {{ $loop->iteration }}
                         </td>
+
+                        <!-- hsn code -->
+                        <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                            {{ $product->hsn_code ?? 'N/A' }}
+                        </td>
+                        <!-- batch_no -->
+                        <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                            {{ $product->batch_no ?? 'N/A' }}
+                        </td>
                         <!-- Quantity -->
                         <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                            {{ $orderItem->quantity ?? 'N/A' }}
+                            {{ $product->quantity ?? 'N/A' }}
                         </td>
                         <!-- Manufacturer Name -->
                         <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                            {{ json_decode($orderItem->product_json, true)['mfg']['name'] ?? 'N/A' }}
+                            {{ $product->mfg->name ?? 'N/A' }}
                         </td>
 
 
                         <!-- HSN Code -->
                         <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                            {{ json_decode($orderItem->product_json, true)['pkg'] ?? 'N/A' }}
+                            {{ $product->pkg ?? 'N/A' }}
                         </td>
 
                         <!-- Product Name -->
                         <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                            {{ json_decode($orderItem->product_json, true)['name'] ?? 'N/A' }}
+                            {{ $product->name ?? 'N/A' }}
                         </td>
 
                         <!-- Agency Name -->
                         <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                            {{-- {{ json_decode($orderItem->product_json, true)['agency']['name'] ?? 'N/A' }} --}}
-                            {{'N/A' }}
+                            {{ number_format($product->mrp_price, 2) ?? 'N/A' }}
+
+                        </td>
+
+                        <td
+                            style="background-color:yellow; border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                            {{ number_format($product->price, 2) ?? 'N/A' }}
+
+                        </td>
+                        <!-- Agency Name -->
+                        <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                            {{ $product->agency->name ?? 'N/A' }}
+                        </td>
+
+                        <!-- Address Name -->
+                        <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                            {{ 'TOHANA' }}
+                        </td>
+                        <!-- Bill Date -->
+                        <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
+                            {{ empty($product->bill_date) ? 'N/A' : date('Y-m-d', strtotime($product->bill_date)) }}
+
                         </td>
 
 

@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use DataTables;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
+use PDF;
 
 class ProductController extends Controller
 {
@@ -130,6 +133,22 @@ class ProductController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
+    public function generatePDF(Request $request)
+    {
+
+        $model = Product::findActive()->with(['mfg','agency'])->get();
+        if (!$model) {
+            return redirect()->route('product')->with('error', 'Product not found.');
+        }
+        try {
+            // Generate the PDF
+            $pdf = PDF::loadView('pdf.products', compact('model'));
+            return $pdf->stream('invoice.pdf');
+        } catch (\Exception $e) {
+            return redirect('product')->with('error', 'Failed to generate PDF: ' . $e->getMessage());
         }
     }
     public function view(Request $request)

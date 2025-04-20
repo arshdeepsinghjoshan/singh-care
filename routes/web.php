@@ -142,6 +142,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/product/view/{id}', [ProductController::class, 'view']);
         Route::post('product/update', [ProductController::class, 'update'])->name('product.update');
         Route::post('product/add-mfg', [ProductController::class, 'addMfg']);
+        Route::get('/product/generate-pdf/', [ProductController::class, 'generatePDF']);
 
 
 

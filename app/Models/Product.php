@@ -152,6 +152,14 @@ class Product extends Model
                     'url' => url('product/import'),
                     'visible' => false
                 ];
+
+                $menu['download-pdf'] = [
+                    'label' => 'fa fa-file-pdf',
+                    'color' => 'btn btn-primary',
+                    'title' => __('Product PDF'),
+                    'url' => url('/product/generate-pdf/'),
+
+                ];
         }
         return $menu;
     }
