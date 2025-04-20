@@ -84,7 +84,7 @@
 
     // let keyupTimeout; // Declare globally
 
-    $(document).on('keyup', '#form1', function (e) {
+    $(document).on('change', '#form1', function (e) {
         clearTimeout(keyupTimeout);
 
         keyupTimeout = setTimeout(() => {
@@ -118,7 +118,7 @@
                 reloadTable: ['#cart_list', '#cart_checkout']
             });
 
-        }, 500); // Delay of 500ms to debounce
+        }, 100); // Delay of 500ms to debounce
     });
 
     $(document).on('keyup', '#grindPrice', function (e) {

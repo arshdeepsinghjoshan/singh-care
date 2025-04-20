@@ -55,68 +55,7 @@
             @enderror
         </div>
 
-        @if (empty($model->exists))
-           
-
-            <div class="col-xl-4 col-lg-4 col-md-6 col-12">
-                <div class="position-relative">
-
-                    <div class="mb-3 required">
-                        <label class="pt-2 fw-bold" for="btncheck1"> Password </label>
-                        <input type="password" id="password" class="form-control d-block" name="password">
-                    </div>
-                    <div class="eye-icon">
-                        <i toggle="#user-confirm_password" class="fa toggle-password fa-eye-slash"></i>
-
-                    </div>
-                </div>
-
-                @error('password')
-                    <p style="color:red;">{{ $errors->first('password') }}</p>
-                @enderror
-            </div>
-
-            <div class="col-xl-4 col-lg-4 col-md-6 col-12 change-password-field">
-                <div class="position-relative">
-                    <div class="mb-3 required">
-
-                        <label class="pt-2 fw-bold" for="btncheck1"> Confirm Password </label>
-                        <input type="password" id="confirm_password" class="form-control d-block"
-                            name="confirm_password">
-                    </div>
-
-                    <div class="eye-icon">
-                        <i toggle="#user-confirm_password" class="fa toggle-password-confirm fa-eye-slash"></i>
-
-                    </div>
-                </div>
-                @error('confirm_password')
-                    <p style="color:red;">{{ $errors->first('confirm_password') }}</p>
-                @enderror
-            </div>
-        @endif
-
-        @if (User::isAdmin() && $model->role_id != User::ROLE_ADMIN)
-
-            <div class="col-xl-4 col-lg-4 col-md-6 col-12">
-                <div class="mb-3 required">
-                    <label class="pt-2 fw-bold" for="btncheck1"> Role </label>
-                    <select name="role_id" class="validate form-control" id="role_id">
-                        <option value="">Select Role</option>
-                        @foreach ($model->getRoleOptions() as $key => $role)
-                            <option value="{{ $key }}"
-                                {{ old('role_id', $model->role_id) == $key ? 'selected' : '' }}>
-                                {{ $role }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                @error('role_id')
-                    <p style="color:red;">{{ $errors->first('role_id') }}</p>
-                @enderror
-            </div>
-
-        @endif
+     
         <div class="col-lg-12">
             <div class="d-flex align-items-center justify-content-end">
                 <div class="downoad-btns text-end my-4">

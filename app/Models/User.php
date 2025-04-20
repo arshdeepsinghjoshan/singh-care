@@ -296,15 +296,15 @@ class User extends Authenticatable
                     'url' => url('user/'),
 
                 ];
-                $menu['login'] = [
-                    'label' => 'fa fa-sign-in',
-                    'color' => 'btn  btn-warning',
-                    'title' => __(' Login'),
-                    'text' => true,
-                    'url' => url('user-login/' . ($model->id ?? 0) . '/' . ($model->slug ?? '')),
-                    'visible' => ($model->role_id != User::ROLE_ADMIN  && $model->id != Auth::id())
+                // $menu['login'] = [
+                //     'label' => 'fa fa-sign-in',
+                //     'color' => 'btn  btn-warning',
+                //     'title' => __(' Login'),
+                //     'text' => true,
+                //     'url' => url('user-login/' . ($model->id ?? 0) . '/' . ($model->slug ?? '')),
+                //     'visible' => ($model->role_id != User::ROLE_ADMIN  && $model->id != Auth::id())
 
-                ];
+                // ];
 
                 $menu['update'] = [
                     'label' => 'fa fa-edit',

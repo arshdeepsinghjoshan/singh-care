@@ -45,7 +45,7 @@ class ProductController extends Controller
                 $data = $sheet->toArray();
 
                 // Validate headers
-                $requiredColumns = ['name', 'product_code', 'hsn_code', 'price'];
+                $requiredColumns = ['name', 'quantity', 'hsn_code', 'price'];
                 $headers = $data[0]; // First row as headers
                 $missingColumns = array_diff($requiredColumns, $headers);
 
@@ -62,26 +62,26 @@ class ProductController extends Controller
 
                     // Validate required fields in rows
                     if (
-                        empty($productData['name']) || empty($productData['product_code']) ||
+                        empty($productData['name']) || empty($productData['quantity']) ||
                         empty($productData['hsn_code']) || empty($productData['price'])
                     ) {
-                        return redirect()->back()->with('error', 'Missing required fields in one or more rows.');
+                        continue; // Skip this row if any required field is empty
                     }
                     $now = now();
                     $productsToInsert[] = [
                         'name' => $productData['name'],
-                        'product_code' => $productData['product_code'] ?? '',
                         'hsn_code' => $productData['hsn_code'],
-                        'description' => $productData['description'] ?? '', // Default empty string
                         'salt' => $productData['salt'] ?? '', // Default empty string
-                        'tax_id' => $productData['tax_id'] ?? '', // Default empty string
-                        'batch_no' => $productData['batch_no'] ?? '', // Default empty string
-                        'agency_name' => $productData['agency_name'] ?? '', // Default empty string
+                        'quantity' => $productData['quantity'] ?? '', // Default empty string
                         'price' => (float) $productData['price'],
-                        'category_id' => $productData['category_id'] ?? null,
+                        'mrp_price' => (float) $productData['mrp_price'],
                         'created_by_id' => Auth::id() ?? null,
                         'expiry_date' => $productData['expiry_date'] ?? null,
                         'bill_date' => $productData['bill_date'] ?? null,
+                        'mfg_id' => $productData['mfg_id'] ?? null,
+                        'agency_id' => $productData['agency_id'] ?? null,
+                        'batch_no' => $productData['batch_no'] ?? null,
+                        'pkg' => $productData['pkg'] ?? null,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
@@ -139,7 +139,7 @@ class ProductController extends Controller
     public function generatePDF(Request $request)
     {
 
-        $model = Product::findActive()->with(['mfg','agency'])->get();
+        $model = Product::findActive()->with(['mfg', 'agency'])->get();
         if (!$model) {
             return redirect()->route('product')->with('error', 'Product not found.');
         }
