@@ -43,11 +43,12 @@ class ProductController extends Controller
                 $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getPathname());
                 $sheet = $spreadsheet->getActiveSheet();
                 $data = $sheet->toArray();
-
+                // dd($data); 
                 // Validate headers
                 $requiredColumns = ['name', 'quantity', 'hsn_code', 'price'];
                 $headers = $data[0]; // First row as headers
-                $missingColumns = array_diff($requiredColumns, $headers);
+                $trimmedArray = array_map('trim', $headers);
+                $missingColumns = array_diff($requiredColumns, $trimmedArray);
 
                 if (!empty($missingColumns)) {
                     return redirect()->back()->with('error', 'Missing columns: ' . implode(', ', $missingColumns));
@@ -58,7 +59,7 @@ class ProductController extends Controller
                 $productsToInsert = [];
 
                 foreach ($rows as $row) {
-                    $productData = array_combine($headers, $row); // Map headers to row values
+                    $productData = array_combine($trimmedArray, $row); // Map headers to row values
 
                     // Validate required fields in rows
                     if (
@@ -78,8 +79,9 @@ class ProductController extends Controller
                         'created_by_id' => Auth::id() ?? null,
                         'expiry_date' => $productData['expiry_date'] ?? null,
                         'bill_date' => $productData['bill_date'] ?? null,
-                        'mfg_id' => $productData['mfg_id'] ?? null,
-                        'agency_id' => $productData['agency_id'] ?? null,
+                        'description' => $productData['description'] ?? null,
+                        'mfg_name' => $productData['mfg_id'] ?? null,
+                        'agency_name' => $productData['agency_id'] ?? null,
                         'batch_no' => $productData['batch_no'] ?? null,
                         'pkg' => $productData['pkg'] ?? null,
                         'created_at' => now(),
@@ -139,7 +141,7 @@ class ProductController extends Controller
     public function generatePDF(Request $request)
     {
 
-        $model = Product::findActive()->with(['mfg', 'agency'])->get();
+        $model = Product::findActive()->with(['mfg', 'agency'])->orderBy('id', 'desc')->get();
         if (!$model) {
             return redirect()->route('product')->with('error', 'Product not found.');
         }
@@ -225,7 +227,7 @@ class ProductController extends Controller
                 $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
             }
             if ($model->save()) {
-                return redirect()->back()->with('success', 'Product updated successfully!');
+                return redirect('product/view/' . $model->id)->with('success', 'Product updated successfully!');
             } else {
                 return redirect()->back()->with('error', 'Product not updated');
             }
@@ -255,13 +257,13 @@ class ProductController extends Controller
             ->addIndexColumn()
             ->addColumn('select', function ($data) {
                 $checked = $data->cart ? 'checked' : ''; // If the relationship exists, mark as checked
-                return '<input class="form-check-input select-product" data-product_id="' . $data->id . '" type="checkbox" ' . $checked . ' value="" >';
+                return '<input class="form-check-input select-product" data-product_id="' . $data->id . '" type="checkbox" ' . $checked . ' value="' . $data->id . '" >';
             })
             ->addColumn('created_by', function ($data) {
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
             })
-            ->addColumn('title', function ($data) {
-                return !empty($data->title) ? (strlen($data->title) > 60 ? substr(ucfirst($data->title), 0, 60) . '...' : ucfirst($data->title)) : 'N/A';
+            ->addColumn('name', function ($data) {
+                return !empty($data->name) ? (strlen($data->name) > 60 ? substr(ucfirst($data->name), 0, 60) . '...' : ucfirst($data->name)) : 'N/A';
             })
             ->addColumn('price', function ($data) {
                 return number_format($data->price, 2);
@@ -279,26 +281,26 @@ class ProductController extends Controller
                 return (empty($data->created_at)) ? 'N/A' : date('Y-m-d', strtotime($data->created_at));
             })
             ->addColumn('expiry_date', function ($data) {
-                return (empty($data->expiry_date)) ? 'N/A' : date('Y-m-d', strtotime($data->expiry_date));
+                return (empty($data->expiry_date)) ? 'N/A' : date('M-y', strtotime($data->expiry_date));
             })
             ->addColumn('bill_date', function ($data) {
-                return (empty($data->bill_date)) ? 'N/A' : date('Y-m-d', strtotime($data->bill_date));
+                return (empty($data->bill_date)) ? 'N/A' : date('M-y', strtotime($data->bill_date));
             })
             ->addColumn('priority_id', function ($data) {
                 return $data->getPriority();
             })
             ->addColumn('agency_name', function ($data) {
-                return $data->agency ?  $data->agency->name : 'N/A';
+                return $data->agency ?  $data->agency->name : $data->agency_name ?? 'N/A';
             })
             ->addColumn('mfg', function ($data) {
-                return $data->mfg ?  $data->mfg->name : 'N/A';
+                return $data->mfg ?  $data->mfg->name : $data->mfg_name ?? 'N/A';
             })
             ->addColumn('department_id', function ($data) {
                 return $data->getDepartment ?  $data->getDepartment->title : 'N/A';
             })
             ->addColumn('action', function ($data) {
                 $html = '<div class="table-actions text-center">';
-                // $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('support/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
+                $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('product/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
                 $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('product/view/' . $data->id) . '"  ><i class="fa fa-eye
                     "data-toggle="tooltip"  title="View"></i></a>';
                 $html .=  '</div>';
@@ -358,6 +360,20 @@ class ProductController extends Controller
 
 
 
+    public function bulkDelete(Request $request)
+    {
+        try {
+            $ids = $request->input('ids');
+            if (!empty($ids)) {
+                Product::whereIn('id', $ids)->delete();
+                return response()->json(['message' => 'Selected products deleted successfully.']);
+            } else {
+                return response()->json(['message' => 'No products selected.'], 400);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred: ' . $e->getMessage()], 500);
+        }
+    }
 
 
 
@@ -413,7 +429,7 @@ class ProductController extends Controller
 
             // Save the model
             if ($model->save()) {
-                return redirect('/product')->with('success', 'Product created successfully!');
+                return redirect('product/view/' . $model->id)->with('success', 'Product created successfully!');
             } else {
                 return redirect('/product/create')->with('error', 'Unable to save the Product!');
             }

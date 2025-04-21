@@ -8,7 +8,8 @@ $(document).ready(function () {
     });
 
     // Event listener for state change
-    $('.state-change').change(function () {
+    $(document).on('change', '.state-change', function(e) {
+
         handleStateChange(this);
     });
 

@@ -132,6 +132,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/product/category/stateChange/{id}/{state_id}', [ProductCategoryController::class, 'stateChange']);
         Route::get('/product/category/delete/{id}', [ProductCategoryController::class, 'finalDelete']);
 
+        Route::delete('/products/bulk-delete', [ProductController::class, 'bulkDelete'])->name('product.bulkDelete');
 
         Route::get('product', [ProductController::class, 'index']);
         Route::get('product/create', [ProductController::class, 'create']);

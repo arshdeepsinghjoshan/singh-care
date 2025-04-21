@@ -193,7 +193,7 @@
                         </td>
                         <!-- Manufacturer Name -->
                         <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                            {{ json_decode($orderItem->product_json, true)['mfg']['name'] ?? 'N/A' }}
+                            {{ json_decode($orderItem->product_json, true)['mfg']['name'] ?? (json_decode($orderItem->product_json, true)['mfg_name'] ?? 'N/A') }}
                         </td>
 
 
@@ -210,7 +210,7 @@
                         <!-- Agency Name -->
                         <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
                             {{-- {{ json_decode($orderItem->product_json, true)['agency']['name'] ?? 'N/A' }} --}}
-                            {{'N/A' }}
+                            {{ 'N/A' }}
                         </td>
 
 

@@ -160,6 +160,13 @@ class Product extends Model
                     'url' => url('/product/generate-pdf/'),
 
                 ];
+                $menu['delete'] = [
+                    'label' => 'fa fa-trash',
+                    'color' => 'btn btn-danger product-delete',
+                    'url' => 'javascript:void(0)',
+                    'title' => __('Add'),
+                    'visible' => true
+                ];
         }
         return $menu;
     }

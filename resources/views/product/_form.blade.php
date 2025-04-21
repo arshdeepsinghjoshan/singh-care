@@ -20,6 +20,7 @@
                         data-bs-toggle="modal" data-bs-target="#customerModal">
                     </i></label>
                 <select name="mfg_id" class="validate form-control" id="category_id-1">
+                    <option value="">Select MFG</option>
                     @foreach ($model->getCategoryOption(1) as $category)
                         <option value="{{ $category->id }}"
                             {{ old('mfg_id', $model->mfg_id) == $category->id ? 'selected' : '' }}>
@@ -89,8 +90,10 @@
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
             <div class="mb-3 ">
                 <label class="pt-2 fw-bold" for="btncheck1"> Expiry Date </label>
-                <input type="date" class="form-control d-block" name="expiry_date"
-                    value="{{ old('expiry_date', $model->expiry_date) }}">
+                <input type="month" class="form-control d-block" name="expiry_date"
+                    value="{{ old('expiry_date', \Carbon\Carbon::parse($model->expiry_date)->format('Y-m')) }}">
+
+
             </div>
             @error('expiry_date')
                 <p style="color:red;">{{ $errors->first('expiry_date') }}</p>
@@ -115,6 +118,7 @@
                         class="fa fa-plus btn btn-primary btn-sm mb-1"data-bs-toggle="modal"
                         data-bs-target="#agencyName"></i></label>
                 <select name="agency_id" class="validate form-control" id="category_id-0">
+                    <option value="">Select MFG</option>
                     @foreach ($model->getCategoryOption(0) as $category)
                         <option value="{{ $category->id }}"
                             {{ $category->id == $model->agency_id ? 'selected' : '' }}>{{ $category->name }}
@@ -150,8 +154,9 @@
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
             <div class="mb-3 ">
                 <label class="pt-2 fw-bold" for="btncheck1"> Bill Date </label>
-                <input type="date" class="form-control d-block" name="bill_date"
-                    value="{{ old('bill_date', $model->bill_date) }}">
+                <input type="month" class="form-control d-block" name="bill_date"
+                    value="{{ old('bill_date', \Carbon\Carbon::parse($model->bill_date)->format('Y-m')) }}">
+
             </div>
             @error('bill_date')
                 <p style="color:red;">{{ $errors->first('bill_date') }}</p>
@@ -277,7 +282,7 @@
 
     function ajaxRequest(data) {
         $.ajax({
-            url: "{{ '/product/add-mfg' }}", // Your endpoint URL
+            url: "{{ url('product/add-mfg') }}", // Your endpoint URL
             method: 'POST',
             data: data,
             success: function(response) {

@@ -54,6 +54,7 @@
                         <x-a-update-menu-items :model="$model" :action="'index'" />
                         <div class="table-responsive">
                             <x-a-grid-view :id="'product_table'" :model="$model" :url="'product/get-list/'" :columns="[
+                            'select',
                                 'id',
                                 [
                                     'attribute' => 'batch_no',
@@ -94,4 +95,48 @@
 
         </div>
     </div>
+    <script>
+
+$(document).ready(function () {
+
+    // Select all checkbox handler
+    $('#select-all').on('click', function() {
+        $('.product-checkbox').prop('checked', this.checked);
+    });
+
+    // Delete selected
+    $('.product-delete').on('click', function (e) {
+        e.preventDefault();
+        let selectedIds = [];
+        $('.select-product:checked').each(function () {
+            selectedIds.push($(this).val());
+        });
+
+        if (selectedIds.length === 0) {
+            alert('Please select at least one product to delete.');
+            return;
+        }
+
+        if (!confirm('Are you sure you want to delete selected products?')) {
+            return;
+        }
+
+        $.ajax({
+            url: '{{ route("product.bulkDelete") }}',
+            type: 'DELETE',
+            data: {
+                ids: selectedIds,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (response) {
+                alert(response.message);
+                location.reload(); // or remove the rows without reloading
+            },
+            error: function (xhr) {
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+    });
+</script>
 @endsection

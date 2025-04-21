@@ -34,7 +34,7 @@
                             'name',
                             [
                                 'attribute' => 'mfg',
-                                'value' => empty($model->mfg) ? 'N/A' : $model->mfg->name,
+                                'value' => empty($model->mfg) ? $model->mfg_name ?? 'N/A' : $model->mfg->name,
                             ],
                         
                             'price',
@@ -46,13 +46,13 @@
                                 'label' => 'Expiry Date',
                                 'value' => empty($model->expiry_date)
                                     ? 'N/A'
-                                    : date('Y-m-d h:i:s A', strtotime($model->expiry_date)),
+                                    : date('M-y', strtotime($model->expiry_date)),
                             ],
                             'salt',
                             [
                                 'attribute' => 'agency_id',
                                 'label' => 'Agency',
-                                'value' => empty($model->agency) ? 'N/A' : $model->agency->name,
+                                'value' => empty($model->agency) ? $model->agency_name ?? 'N/A'  : $model->agency->name,
                             ],
                             'batch_no',
                             'pkg',
@@ -61,7 +61,7 @@
                                 'label' => 'Bill Date',
                                 'value' => empty($model->bill_date)
                                     ? 'N/A'
-                                    : date('Y-m-d h:i:s A', strtotime($model->bill_date)),
+                                    : date('M-y', strtotime($model->bill_date)),
                             ],
                         
                             [

@@ -17,16 +17,17 @@ return new class extends Migration
             $table->string('name', 128)->nullable();
             $table->string('mfg_id', 128)->nullable();
             $table->string('agency_id', 128)->nullable();
+            $table->string('mfg_name', 128)->nullable();
+            $table->string('agency_name', 128)->nullable();
             $table->string('slug', 128)->nullable();
             $table->decimal('price', 20, 6)->unsigned()->default(0);
             $table->decimal('mrp_price', 20, 6)->unsigned()->default(0);
             $table->string('quantity')->default(0);
             $table->string('hsn_code', 128)->nullable();
-            $table->date('expiry_date')->nullable();
+            $table->string('expiry_date')->nullable();
             $table->string('salt')->nullable();
-            $table->string('agency_name', 255)->nullable();
             $table->string('pkg', 125)->nullable();
-            $table->date('bill_date')->nullable();
+            $table->string('bill_date')->nullable();
             $table->integer('state_id')->default(1);
             $table->integer('type_id')->nullable(); // 1 = Package
             $table->string('image')->nullable();

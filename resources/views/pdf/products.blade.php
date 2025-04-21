@@ -107,7 +107,8 @@
                         </td>
                         <!-- Manufacturer Name -->
                         <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                            {{ $product->mfg->name ?? 'N/A' }}
+                            {{ $product->mfg?->name ?? ($product->mfg_name ?? 'N/A') }}
+
                         </td>
 
 
@@ -134,7 +135,8 @@
                         </td>
                         <!-- Agency Name -->
                         <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                            {{ $product->agency->name ?? 'N/A' }}
+                            {{ $product->agency?->name ?? ($product->agency_name ?? 'N/A') }}
+
                         </td>
 
                         <!-- Address Name -->
@@ -143,7 +145,7 @@
                         </td>
                         <!-- Bill Date -->
                         <td style="border: 1px solid black; padding: 2px 3px; white-space: wrap; font-size:8px">
-                            {{ empty($product->bill_date) ? 'N/A' : date('Y-m-d', strtotime($product->bill_date)) }}
+                            {{ empty($product->bill_date) ? 'N/A' : date('M-y', strtotime($product->bill_date)) }}
 
                         </td>
 
