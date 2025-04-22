@@ -45,7 +45,7 @@ class ProductController extends Controller
                 $data = $sheet->toArray();
                 // dd($data); 
                 // Validate headers
-                $requiredColumns = ['name', 'quantity', 'hsn_code', 'price'];
+                $requiredColumns = ['name'];
                 $headers = $data[0]; // First row as headers
                 $trimmedArray = array_map('trim', $headers);
                 $missingColumns = array_diff($requiredColumns, $trimmedArray);
@@ -63,8 +63,7 @@ class ProductController extends Controller
 
                     // Validate required fields in rows
                     if (
-                        empty($productData['name']) || empty($productData['quantity']) ||
-                        empty($productData['hsn_code']) || empty($productData['price'])
+                        empty($productData['name'])
                     ) {
                         continue; // Skip this row if any required field is empty
                     }
@@ -140,19 +139,20 @@ class ProductController extends Controller
 
     public function generatePDF(Request $request)
     {
-
-        $model = Product::findActive()->with(['mfg', 'agency'])->orderBy('id', 'desc')->get();
-        if (!$model) {
-            return redirect()->route('product')->with('error', 'Product not found.');
-        }
         try {
-            // Generate the PDF
-            $pdf = PDF::loadView('pdf.products', compact('model'));
+            ini_set('memory_limit', '1G');
+            ini_set('max_execution_time', 300); // 5 minute
+            $model = Product::findActive()->with(['mfg', 'agency'])->orderBy('id', 'desc')->take(1650)->get();
+            if (!$model) {
+                return redirect()->route('product')->with('error', 'No products found.');
+            }
+            $pdf = PDF::loadView('pdf.products', compact('model'))->setPaper('a4', 'landscape');
             return $pdf->stream('invoice.pdf');
         } catch (\Exception $e) {
             return redirect('product')->with('error', 'Failed to generate PDF: ' . $e->getMessage());
         }
     }
+
     public function view(Request $request)
     {
         try {
