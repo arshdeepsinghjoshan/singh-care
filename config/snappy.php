@@ -35,7 +35,7 @@ return [
 
     'pdf' => [
         'enabled' => true,
-        'binary'  => '"C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"',
+        'binary'  => '/usr/bin/wkhtmltopdf',
         // 👆 add double quotes around the full path
         'timeout' => false,
         'options' => [
