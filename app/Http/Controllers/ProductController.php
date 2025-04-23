@@ -14,7 +14,8 @@ use DataTables;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
-use PDF;
+use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
+use Illuminate\Support\Facades\View;
 
 class ProductController extends Controller
 {
@@ -136,21 +137,171 @@ class ProductController extends Controller
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
-
+  
     public function generatePDF(Request $request)
     {
         try {
-            ini_set('memory_limit', '1G');
-            ini_set('max_execution_time', 300); // 5 minute
-            $model = Product::findActive()->with(['mfg', 'agency'])->orderBy('id', 'desc')->take(1650)->get();
-            if (!$model) {
-                return redirect()->route('product')->with('error', 'No products found.');
-            }
-            $pdf = PDF::loadView('pdf.products', compact('model'))->setPaper('a4', 'landscape');
-            return $pdf->stream('invoice.pdf');
+            $chunkSize = 1000; // Use larger chunks if Snappy handles well
+            $productsQuery = Product::findActive();
+            $pages = [];
+    
+            // Load each chunk and render a partial view
+            $productsQuery->chunk($chunkSize, function ($products) use (&$pages) {
+                $pages[] = View::make('pdf.product_chunk', ['products' => $products])->render();
+            });
+    
+            // Combine all pages into one full HTML view
+            $html = View::make('pdf.full_template', ['pages' => $pages])->render();
+    
+            return PDF::loadHTML($html)->download('products.pdf');
+    
         } catch (\Exception $e) {
-            return redirect('product')->with('error', 'Failed to generate PDF: ' . $e->getMessage());
+            \Log::error('PDF generation failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to generate PDF.');
         }
+    }
+    
+
+
+
+    //     public function generatePaginatedPDF(Request $request)
+    // {
+    //     // Define records per page (for large datasets, e.g. 500 records per page)
+    //     $perPage = 500;
+    //     $totalRecords = Product::count();
+    //     $totalPages = ceil($totalRecords / $perPage);
+
+    //     // Start building the PDF content
+    //     $htmlContent = '<h1 style="text-align: center;">Product List</h1>';
+    //     $htmlContent .= '<div style="margin: 20px 0; font-size: 14px; text-align: center;">';
+
+    //     // Add links for navigation (e.g. page 1, page 2, ...)
+    //     for ($page = 1; $page <= $totalPages; $page++) {
+    //         $htmlContent .= '<a href="#page' . $page . '" style="text-decoration: none; padding: 5px 10px; border: 1px solid #000; margin: 0 5px;">Page ' . $page . '</a>';
+    //     }
+
+    //     $htmlContent .= '</div>';
+
+    //     // Loop through pages and fetch the data
+    //     for ($page = 1; $page <= $totalPages; $page++) {
+    //         $products = Product::skip(($page - 1) * $perPage)->take($perPage)->get();
+
+    //         // Add section for each page
+    //         $htmlContent .= '<div id="page' . $page . '" style="page-break-before: always; margin-top: 30px;">';
+    //         $htmlContent .= '<h2 style="text-align: center;">Page ' . $page . ' - Products</h2>';
+    //         $htmlContent .= $this->generateProductTable($products);
+    //         $htmlContent .= '</div>';
+    //     }
+
+    //     // Load PDF view with generated HTML content
+    //     $pdf = PDF::loadHTML($htmlContent)->setPaper('a4', 'landscape');
+
+    //     // Generate and stream the PDF
+    //     return $pdf->stream('paginated_products.pdf');
+    // }
+
+
+    public function generatePaginatedPDF(Request $request)
+    {
+        // Pagination settings
+        $perPage = 500;
+        $totalRecords = Product::count();
+        $totalPages = ceil($totalRecords / $perPage);
+
+        $pdfContent = '';
+        $tableOfContents = '<h3>Table of Contents</h3><ul>';
+
+        // Loop through pages and create links in the table of contents
+        for ($page = 1; $page <= $totalPages; $page++) {
+            $products = Product::skip(($page - 1) * $perPage)->take($perPage)->get();
+
+            // Add link to table of contents
+
+            // Generate the product table for the current page
+            $pdfContent .= '<div id="page-' . $page . '">
+            <h4 style="text-align: center;">Page ' . $page . '</h4>
+            <table class="product-table" style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">
+                <thead>
+                    <tr>
+                        <th style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">Sr.</th>
+                        <th style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">HSN</th>
+                        <th style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">Batch No.</th>
+                        <th style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">Qty</th>
+                        <th style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">MFG</th>
+                        <th style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">PKG</th>
+                        <th style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">Product Name</th>
+                        <th style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">MRP</th>
+                        <th style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">Rate</th>
+                        <th style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">Agency Name</th>
+                        <th style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">Address</th>
+                        <th style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">Bill Date</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+            foreach ($products as $index => $product) {
+                $pdfContent .= '<tr>
+                <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($index + 1 + (($page - 1) * $perPage)) . '</td>
+                <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->hsn_code ?? 'N/A') . '</td>
+                <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->batch_no ?? 'N/A') . '</td>
+                <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->quantity ?? 'N/A') . '</td>
+                <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->mfg->name ?? $product->mfg_name ?? 'N/A') . '</td>
+                <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->pkg ?? 'N/A') . '</td>
+                <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->name ?? 'N/A') . '</td>
+                <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . number_format($product->mrp_price ?? 0, 2) . '</td>
+                <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left; background-color:yellow;">' . number_format($product->price ?? 0, 2) . '</td>
+                <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->agency->name ?? $product->agency_name ?? 'N/A') . '</td>
+                <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . 'TOHANA' . '</td>
+                <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . (isset($product->bill_date) ? date('M-y', strtotime($product->bill_date)) : 'N/A') . '</td>
+            </tr>';
+            }
+
+            $pdfContent .= '</tbody></table></div>';
+        }
+
+
+        // Create the PDF
+        $content = $pdfContent;
+        $pdf = PDF::loadHTML($content);
+
+        return $pdf->stream('paginated_invoice.pdf');
+    }
+    // Helper function to generate product table for each page
+    private function generateProductTable($products)
+    {
+        $tableHtml = '<table style="width: 100%; border-collapse: collapse;">';
+        $tableHtml .= '<thead>
+                    <tr style="background-color: #f0f0f0;">
+                        <th style="padding: 8px; border: 1px solid #000;">Sr.</th>
+                        <th style="padding: 8px; border: 1px solid #000;">HSN</th>
+                        <th style="padding: 8px; border: 1px solid #000;">Batch No.</th>
+                        <th style="padding: 8px; border: 1px solid #000;">Quantity</th>
+                        <th style="padding: 8px; border: 1px solid #000;">MFG</th>
+                        <th style="padding: 8px; border: 1px solid #000;">Package</th>
+                        <th style="padding: 8px; border: 1px solid #000;">Product Name</th>
+                        <th style="padding: 8px; border: 1px solid #000;">MRP</th>
+                        <th style="padding: 8px; border: 1px solid #000;">Rate</th>
+                        <th style="padding: 8px; border: 1px solid #000;">Agency Name</th>
+                    </tr>
+                </thead><tbody>';
+
+        foreach ($products as $product) {
+            $tableHtml .= '<tr>
+                        <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . $product->id . '</td>
+                        <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->hsn_code ?? 'N/A') . '</td>
+                        <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->batch_no ?? 'N/A') . '</td>
+                        <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->quantity ?? 'N/A') . '</td>
+                        <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->mfg_name ?? 'N/A') . '</td>
+                        <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->pkg ?? 'N/A') . '</td>
+                        <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->name ?? 'N/A') . '</td>
+                        <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . number_format($product->mrp_price, 2) . '</td>
+                        <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . number_format($product->price, 2) . '</td>
+                        <td style="border: 1px solid #000;padding: 4px;font-size: 8px;text-align: left;">' . ($product->agency_name ?? 'N/A') . '</td>
+                    </tr>';
+        }
+
+        $tableHtml .= '</tbody></table>';
+        return $tableHtml;
     }
 
     public function view(Request $request)
